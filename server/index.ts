@@ -1,17 +1,18 @@
 require('dotenv').config()
 const https = require('https');
 const http = require('http');
-const cheerio = require('cheerio');
-const express = require('express');
 const path = require('path');
+import express from 'express';
+import cheerio from 'cheerio';
+
 
 
 const update = () => {
-  https.get('https://taw.stg2.de/squad_stats.php?name==GEMINI=', (resp) => {
+  https.get('https://taw.stg2.de/squad_stats.php?name==GEMINI=', (resp: any) => {
     let data = '';
 
     // A chunk of data has been recieved.
-    resp.on('data', (chunk) => {
+    resp.on('data', (chunk: any) => {
       data += chunk;
     });
 
@@ -20,14 +21,24 @@ const update = () => {
       parse(data);
     });
 
-  }).on("error", (err) => {
+  }).on("error", (err: any) => {
     console.log("Error: " + err.message);
   });
 }
 
-let scores = [];
+interface IScore {
+  name: string;
+  airKills: string;
+  groundKills: string;
+  streakAk: string;
+  streakGk: string;
+  deaths: string;
+  sorties: string;
+  flightTime: string;
+}
+let scores: IScore[] = [];
 
-const parse = (data) => {
+const parse = (data: string) => {
   scores = [];
   const $ = cheerio.load(data);
   const selector = '#page-wrapper > div > div:nth-child(3) > div.col-lg-8.col-md-8 > div:nth-child(2) > table > tbody > tr';
@@ -45,21 +56,21 @@ const parse = (data) => {
     }
     scores.push(entry);
   });
-  console.log(scores);
 }
 
 update();
 
 const router = express();
-router['get']('/all', (req, res) => {
+router.get('/api/taw', (req, res) => {
   update();
   return res.send(JSON.stringify(scores));
 });
-router['get']('/', (req, res) => {
-  return res.sendFile(path.join(__dirname + '/index.html'))
+router.get('/', (req,res) =>{
+  res.sendFile(path.join(__dirname+'/../../client/build/index.html'));
 });
+router.use(express.static(path.join(__dirname, '../../client/build')));
 
-const { PORT = 3001 } = process.env;
+const { PORT = 8080 } = process.env;
 const server = http.createServer(router);
 
 server.listen(PORT, () => {
