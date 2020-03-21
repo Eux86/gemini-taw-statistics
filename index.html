@@ -6,7 +6,7 @@
 
 <body>
   <h1>Gemini Statistics</h1>
-  <canvas id="myChart" width="400" height="400"></canvas>
+  <canvas id="myChart" width="800" height="500"></canvas>
 </body>
 
 <script>
@@ -26,6 +26,7 @@
   console.log(statistics);
   var ctx = document.getElementById('myChart').getContext('2d');
   const options = {
+    responsive: false,
     scale: {
       angleLines: {
         display: false
