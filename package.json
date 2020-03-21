@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/Eux86/gemini-taw-statistics/issues"
   },
-  "homepage": "https://github.com/Eux86/gemini-taw-statistics#readme"
+  "homepage": "https://github.com/Eux86/gemini-taw-statistics#readme",
+  "dependencies": {
+    "tsc": "^1.20150623.0"
+  }
 }
