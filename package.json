@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/Eux86/gemini-taw-statistics#readme",
   "dependencies": {
-    "tsc": "^3.6.4"
+    "typescript": "^3.8.3"
   }
 }
