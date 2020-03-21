@@ -1,0 +1,67 @@
+<html>
+<header>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <title>Gemini statistics</title>
+</header>
+
+<body>
+  <h1>Gemini Statistics</h1>
+  <canvas id="myChart" width="400" height="400"></canvas>
+</body>
+
+<script>
+  function httpGet(url) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", url, false); // false for synchronous request
+    xmlHttp.send(null);
+    return xmlHttp.responseText;
+  }
+  var dynamicColors = function () {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgb(" + r + "," + g + "," + b + ", 0.5)";
+  };
+  const statistics = JSON.parse(httpGet("/all"));
+  console.log(statistics);
+  var ctx = document.getElementById('myChart').getContext('2d');
+  const options = {
+    scale: {
+      angleLines: {
+        display: false
+      },
+      // ticks: {
+      //   suggestedMin: 50,
+      //   suggestedMax: 100
+      // }
+    }
+  };
+  const labels = Object.keys(statistics[0]).slice(1, statistics.length-2);
+  const dataSets = [];
+  statistics.forEach((values) => {
+    const entry = {
+      label: Object.values(values)[0],
+      data: [],
+      backgroundColor: dynamicColors(),
+    };
+    Object.values(values).slice(1).forEach((value) => {
+      entry.data.push(value);
+    });
+    dataSets.push(entry);
+  });
+  const data = {
+    labels: labels,
+    datasets: dataSets
+    // datasets: [{
+    //   label: 'Eugenio',
+    //   data: [20, 10, 4, 2]
+    // }]
+  }
+  const radar = new Chart(ctx, {
+    type: 'radar',
+    data: data,
+    options: options
+  });
+</script>
+
+</html>

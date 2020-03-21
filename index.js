@@ -3,6 +3,8 @@ const https = require('https');
 const http = require('http');
 const cheerio = require('cheerio');
 const express = require('express');
+const path = require('path');
+
 
 https.get('https://taw.stg2.de/squad_stats.php?name==GEMINI=', (resp) => {
   let data = '';
@@ -47,6 +49,9 @@ const parse = (data) => {
 const router = express();
 router['get']('/all', (req, res) => {
   return res.send(JSON.stringify(scores));
+});
+router['get']('/', (req, res) => {
+  return res.sendFile(path.join(__dirname+'/index.html'))
 });
 
 const { PORT = 3001 } = process.env;
