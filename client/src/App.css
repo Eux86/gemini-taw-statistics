@@ -58,7 +58,3 @@
   display: flex;
   justify-content: center;
 }
-
-canvas {
-  height: 400px !important;
-}

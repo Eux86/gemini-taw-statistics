@@ -1,12 +1,12 @@
 import React from 'react';
 import Chart from 'chart.js';
 import './App.css';
-import { IScoresTaw } from './models/scores-taw';
+import { IPlayerScoresDto } from 'gemini-statistics-api/build/dtos/player-scores.dto';
 
 function App() {
   const chartRef = React.useRef<HTMLCanvasElement>(null)
 
-  const [data, setData] = React.useState<IScoresTaw[] | null>(null);
+  const [data, setData] = React.useState<IPlayerScoresDto[] | null>(null);
   const [totalAirKills, setTotalAirKills] = React.useState(0);
   const [totalDeaths, setTotalDeaths] = React.useState(0);
   const [totalGroundKills, setTotalGroundKills] = React.useState(0);
@@ -23,20 +23,12 @@ function App() {
     getList();
   }, []);
 
-  const parseTimeToMinutes = (timeString: string): number => {
-    const hoursMatcher = timeString.match(/(\d*)h.*/);
-    const minutesMatcher = timeString.match(/(\d*)m.*/);
-    const hours = hoursMatcher ? +hoursMatcher[1] : 0;
-    const minutes = minutesMatcher ? +minutesMatcher[1] : 0;
-    return (hours * 60) + minutes;
-  }
-
   React.useEffect(() => {
     const totalAirKills = data?.reduce((prev, current) => prev + +current.airKills, 0)
     const totalDeaths = data?.reduce((prev, current) => prev + +current.deaths, 0)
     const totalGroundKills = data?.reduce((prev, current) => prev + +current.groundKills, 0)
     const totalSorties = data?.reduce((prev, current) => prev + +current.sorties, 0)
-    const totalFlightTime = data?.reduce((prev, current) => prev + parseTimeToMinutes(current.flightTime), 0)
+    const totalFlightTime = data?.reduce((prev, current) => prev + current.flightTimeMinutes, 0)
     setTotalAirKills(totalAirKills || 0);
     setTotalDeaths(totalDeaths || 0);
     setTotalGroundKills(totalGroundKills || 0);
@@ -46,6 +38,7 @@ function App() {
 
   React.useEffect(() => {
     if (!chartRef || !chartRef.current) return;
+    chartRef.current.height = 500;
     const labels = ['Air Kills', 'Deaths', 'Ground Kills'];
     new Chart(chartRef.current, {
       type: 'bar',
@@ -56,6 +49,9 @@ function App() {
           data: [totalAirKills, totalDeaths, totalGroundKills],
           backgroundColor: '#112233'
         }]
+      },
+      options: {
+        responsive: true,
       }
     });
   }, [chartRef, totalAirKills, totalDeaths, totalGroundKills]);
@@ -63,15 +59,17 @@ function App() {
   return (
     <div className="App">
       <h1>Gemini Statistics</h1>
-      <canvas ref={chartRef} />
+      <div className="graph-container">
+        <canvas ref={chartRef} />
+      </div>
       <div className="scores">
-      <div className="score">
+        <div className="score">
           <label>Air Kills per Hour</label>
-          <p>{(totalAirKills/(totalFlightTime/60)).toFixed(2)}</p>
+          <p>{(totalAirKills / (totalFlightTime / 60)).toFixed(2)}</p>
         </div>
         <div className="score">
           <label>Ground Kills per Hour</label>
-          <p>{(totalGroundKills/(totalFlightTime/60)).toFixed(2)}</p>
+          <p>{(totalGroundKills / (totalFlightTime / 60)).toFixed(2)}</p>
         </div>
         <div className="score">
           <label>Sorties</label>
