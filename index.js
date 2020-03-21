@@ -6,26 +6,29 @@ const express = require('express');
 const path = require('path');
 
 
-https.get('https://taw.stg2.de/squad_stats.php?name==GEMINI=', (resp) => {
-  let data = '';
+const update = () => {
+  https.get('https://taw.stg2.de/squad_stats.php?name==GEMINI=', (resp) => {
+    let data = '';
 
-  // A chunk of data has been recieved.
-  resp.on('data', (chunk) => {
-    data += chunk;
+    // A chunk of data has been recieved.
+    resp.on('data', (chunk) => {
+      data += chunk;
+    });
+
+    // The whole response has been received. Print out the result.
+    resp.on('end', () => {
+      parse(data);
+    });
+
+  }).on("error", (err) => {
+    console.log("Error: " + err.message);
   });
+}
 
-  // The whole response has been received. Print out the result.
-  resp.on('end', () => {
-    parse(data);
-  });
-
-}).on("error", (err) => {
-  console.log("Error: " + err.message);
-});
-
-const scores = [];
+let scores = [];
 
 const parse = (data) => {
+  scores = [];
   const $ = cheerio.load(data);
   const selector = '#page-wrapper > div > div:nth-child(3) > div.col-lg-8.col-md-8 > div:nth-child(2) > table > tbody > tr';
   $(selector).each((index, el) => {
@@ -45,13 +48,15 @@ const parse = (data) => {
   console.log(scores);
 }
 
+update();
 
 const router = express();
 router['get']('/all', (req, res) => {
+  update();
   return res.send(JSON.stringify(scores));
 });
 router['get']('/', (req, res) => {
-  return res.sendFile(path.join(__dirname+'/index.html'))
+  return res.sendFile(path.join(__dirname + '/index.html'))
 });
 
 const { PORT = 3001 } = process.env;
