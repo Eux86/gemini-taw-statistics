@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build:server && npm run build:client && npm run start:server",
+    "start": "npm run start:server",
+    "build": "npm run install:all && npm run build:server && npm run build:client",
+    "install:all": "npm install:server && npm install:client",
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
     "build:server": "cd server && npm install && npm run build",
     "build:client": "cd client && npm install && npm run build",
     "start:server": "cd server && npm run start"
