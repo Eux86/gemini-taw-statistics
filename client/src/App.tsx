@@ -64,6 +64,18 @@ function App() {
       </div>
       <div className="scores">
         <div className="score">
+          <label>Total Air Kills</label>
+          <p>{totalAirKills}</p>
+        </div>
+        <div className="score">
+          <label>Total Deaths</label>
+          <p>{totalDeaths}</p>
+        </div>
+        <div className="score">
+          <label>Total Ground Kills</label>
+          <p>{totalGroundKills}</p>
+        </div>
+        <div className="score">
           <label>Air Kills per Hour</label>
           <p>{(totalAirKills / (totalFlightTime / 60)).toFixed(2)}</p>
         </div>
