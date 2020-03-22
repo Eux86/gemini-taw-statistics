@@ -13,14 +13,31 @@ let scores: IPlayerScores[] = [];
 const tawScraper: TawScraper = new TawScraper();
 const update = () => {
   tawScraper.getScoresBySquadron('=GEMINI=')
-    .then((val: IPlayerScores[]) => scores = val);
+    .then((val: IPlayerScores[]) => {
+      scores = val;
+      db.getLastUpdateDateForTable('taw')
+        .then((lastUpdate?: Date) => {
+
+          const hourDay = 1000 * 60 * 60 * 12;
+          const dayAgo = new Date(Date.now() - hourDay);
+
+          console.log(`Last update: ${lastUpdate}`);
+          if (lastUpdate && lastUpdate > dayAgo) {
+            console.log('Already updated, ignoring');
+            return;
+          }
+          console.log('Data is old. Updating');
+          db.addPlayerScores(scores);
+        });
+    });
 }
 
 update();
+setInterval(update, 3600000);
 
-// const db = new Db();
-// db.connect();
-// db.dropTawTable();
+const db = new Db();
+db.connect();
+// db.dropTables(); 
 
 const router = express();
 router.get('/api/taw', (req, res) => {
