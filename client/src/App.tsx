@@ -4,9 +4,11 @@ import './App.css';
 import { IPlayerScoresDto } from 'gemini-statistics-api/build/dtos/player-scores.dto';
 
 function App() {
-  const chartRef = React.useRef<HTMLCanvasElement>(null)
+  const chartRef = React.useRef<HTMLCanvasElement>(null);
+  const historyChartRef = React.useRef<HTMLCanvasElement>(null);
 
   const [data, setData] = React.useState<IPlayerScoresDto[] | null>(null);
+  const [latestUpdateDate, setLatestUpdateDate] = React.useState<Date | undefined>(new Date(0));
   const [totalAirKills, setTotalAirKills] = React.useState(0);
   const [totalDeaths, setTotalDeaths] = React.useState(0);
   const [totalGroundKills, setTotalGroundKills] = React.useState(0);
@@ -14,7 +16,7 @@ function App() {
   const [totalFlightTime, setTotalFlightTime] = React.useState(0);
 
   const getList = async () => {
-    const response = await fetch('/api/taw');
+    const response = await fetch('/api/taw/lastYearScores');
     const list = await response.json();
     setData(list);
   }
@@ -24,43 +26,132 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    const totalAirKills = data?.reduce((prev, current) => prev + +current.airKills, 0)
-    const totalDeaths = data?.reduce((prev, current) => prev + +current.deaths, 0)
-    const totalGroundKills = data?.reduce((prev, current) => prev + +current.groundKills, 0)
-    const totalSorties = data?.reduce((prev, current) => prev + +current.sorties, 0)
-    const totalFlightTime = data?.reduce((prev, current) => prev + current.flightTimeMinutes, 0)
+    const latestDate = data?.map(x => x.updateDate).reduce((prev: Date, current?: string) => (!current || (prev > new Date(current))) ? prev : new Date(current), new Date(0));
+    setLatestUpdateDate(latestDate ? new Date(latestDate) : undefined);
+  }, [data]);
+
+  React.useEffect(() => {
+    const latesData = data?.filter((score: IPlayerScoresDto) => new Date(score.updateDate || 0).getTime() === latestUpdateDate?.getTime());
+    console.log(latesData);
+    const totalAirKills = latesData?.reduce((prev, current) => prev + +current.airKills, 0)
+    const totalDeaths = latesData?.reduce((prev, current) => prev + +current.deaths, 0)
+    const totalGroundKills = latesData?.reduce((prev, current) => prev + +current.groundKills, 0)
+    const totalSorties = latesData?.reduce((prev, current) => prev + +current.sorties, 0)
+    const totalFlightTime = latesData?.reduce((prev, current) => prev + current.flightTimeMinutes, 0)
     setTotalAirKills(totalAirKills || 0);
     setTotalDeaths(totalDeaths || 0);
     setTotalGroundKills(totalGroundKills || 0);
     setTotalSorties(totalSorties || 0);
     setTotalFlightTime(totalFlightTime || 0);
-  }, [data]);
+  }, [data, latestUpdateDate]);
 
   React.useEffect(() => {
     if (!chartRef || !chartRef.current) return;
     chartRef.current.height = 500;
-    const labels = ['Air Kills', 'Deaths', 'Ground Kills'];
+
+    const totalAirKillsByDate = data?.reduce((prev, current) => {
+      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.airKills;
+      return prev;
+    }, {} as { [key: string]: number })
+
+    const totalGroundKillsByDate = data?.reduce((prev, current) => {
+      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.groundKills;
+      return prev;
+    }, {} as { [key: string]: number })
+
+    const totalDeathsByDate = data?.reduce((prev, current) => {
+      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.deaths;
+      return prev;
+    }, {} as { [key: string]: number })
+
     new Chart(chartRef.current, {
-      type: 'bar',
+      type: 'line',
       data: {
-        labels: labels,
-        datasets: [{
-          label: 'Current Scores',
-          data: [totalAirKills, totalDeaths, totalGroundKills],
-          backgroundColor: '#112233'
-        }]
+        labels: Object.keys(totalAirKillsByDate || {}),
+        datasets: [
+          {
+            label: 'Total Air Kills',
+            data: Object.values(totalAirKillsByDate || {}),
+            borderColor: '#552211'
+          },
+          {
+            label: 'Total Ground Kills',
+            data: Object.values(totalGroundKillsByDate || {}),
+            borderColor: '#112255'
+          },
+          {
+            label: 'Total Deaths',
+            data: Object.values(totalDeathsByDate || {}),
+            borderColor: '#990000'
+          }
+        ]
+      },
+    });
+  }, [chartRef, totalAirKills, totalDeaths, totalGroundKills]);
+
+  React.useEffect(() => {
+    if (!historyChartRef || !historyChartRef.current) return;
+    
+    if (!data) return;
+
+    const totalAirKillsByDate = data.reduce((prev, current) => {
+      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.airKills;
+      return prev;
+    }, {} as { [key: string]: number })
+
+    const totalGroundKillsByDate = data.reduce((prev, current) => {
+      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.groundKills;
+      return prev;
+    }, {} as { [key: string]: number })
+
+    const totalDeathsByDate = data.reduce((prev, current) => {
+      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.deaths;
+      return prev;
+    }, {} as { [key: string]: number })
+
+    new Chart(historyChartRef.current, {
+      type: 'line',
+      data: {
+        labels: Object.keys(totalAirKillsByDate),
+        datasets: [
+          {
+            label: 'Air Kills',
+            data: Object.values(totalAirKillsByDate),
+            backgroundColor: '#552211'
+          },
+          {
+            label: 'Ground Kills',
+            data: Object.values(totalGroundKillsByDate),
+            backgroundColor: '#112255'
+          },
+          {
+            label: 'Deaths',
+            data: Object.values(totalDeathsByDate),
+            backgroundColor: '#990000'
+          }
+        ]
       },
       options: {
         responsive: true,
+        // scales: {
+        //   xAxes: [{
+        //     stacked: true
+        //   }],
+        //   yAxes: [{
+        //     stacked: true
+        //   }]
+        // }
       }
     });
-  }, [chartRef, totalAirKills, totalDeaths, totalGroundKills]);
+  }, [historyChartRef, totalAirKills, totalDeaths, totalGroundKills]);
 
   return (
     <div className="App">
       <h1>Gemini Statistics</h1>
+      <h4>Latest update: {latestUpdateDate?.toLocaleDateString()}</h4>
       <div className="graph-container">
         <canvas ref={chartRef} />
+        {/* <canvas ref={historyChartRef} height="500" /> */}
       </div>
       <div className="scores">
         <div className="score">

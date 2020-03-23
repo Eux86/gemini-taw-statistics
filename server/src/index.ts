@@ -3,19 +3,18 @@ const https = require('https');
 const http = require('http');
 const path = require('path');
 import express from 'express';
-import cheerio from 'cheerio';
 import { TawScraper } from './taw-scraper';
 import { IPlayerScores } from './business-models/player-scores';
 import { Db } from './db';
+import { TawController } from './controllers/taw';
+import { IPlayerScoresDto } from './dtos/player-scores.dto';
 
-let scores: IPlayerScores[] = [];
-
+// ############## SCRAPER TASK ############################
 const tawScraper: TawScraper = new TawScraper();
 const update = () => {
   tawScraper.getScoresBySquadron('=GEMINI=')
     .then((val: IPlayerScores[]) => {
-      scores = val;
-      db.getLastUpdateDateForTable('taw')
+      db.getLastUpdateDateByTable('taw')
         .then((lastUpdate?: Date) => {
 
           const hourDay = 1000 * 60 * 60 * 12;
@@ -27,31 +26,42 @@ const update = () => {
             return;
           }
           console.log('Data is old. Updating');
-          db.addPlayerScores(scores);
+          db.addPlayersScores(val);
         });
     });
 }
 
 update();
 setInterval(update, 3600000);
+// ########################################################
 
+
+// ############ INITIALIZE STACK #####################
 const db = new Db();
+const tawController = new TawController(db);
 db.connect();
-// db.dropTables(); 
-
+// db.dropTables();
 const router = express();
-router.get('/api/taw', (req, res) => {
+// ####################################################
+
+// ############### ROUTES ##################
+router.get('/api/taw/lastYearScores', async (req, res) => {
   update();
-  return res.send(JSON.stringify(scores));
+  const scores = await tawController.getLastYearStatistics();
+  const scoresDto: IPlayerScoresDto[] = scores.map((score: IPlayerScores) => ({...score, updateDate: score.updateDate?.toUTCString()} as IPlayerScoresDto))
+return res.send(JSON.stringify(scoresDto));
 });
 router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/../../client/build/index.html'));
 });
 router.use(express.static(path.join(__dirname, '../../client/build')));
+// ############################################
 
+// ############## SERVER STARTUP ##############
 const { PORT = 8080 } = process.env;
 const server = http.createServer(router);
 
 server.listen(PORT, () => {
   console.log(`Server is running at port:${PORT}...`);
 });
+// ###########################################

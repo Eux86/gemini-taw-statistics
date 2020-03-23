@@ -22,10 +22,11 @@ export class Db {
     });
   }
 
-  public addPlayerScores = async (playerScores: IPlayerScores[]): Promise<void> => {
+  // ################################# PUBLIC QUERIEDS 
+  public addPlayersScores = async (playersScores: IPlayerScores[]): Promise<void> => {
     let queryString = 'INSERT INTO taw (name, airkill, groundkill, streakAK, streakGk, deaths, sorties, flightTimeMinutes, updateDate) VALUES ';
-    playerScores.forEach((scores: IPlayerScores, index: number) => {
-      queryString =`${queryString}('${scores.name}', ${scores.airKills}, ${scores.groundKills}, ${scores.streakAk}, ${scores.streakGk}, ${scores.deaths}, ${scores.sorties}, ${scores.flightTimeMinutes}, now())${index<playerScores.length-1?',':''}
+    playersScores.forEach((scores: IPlayerScores, index: number) => {
+      queryString = `${queryString}('${scores.name}', ${scores.airKills}, ${scores.groundKills}, ${scores.streakAk}, ${scores.streakGk}, ${scores.deaths}, ${scores.sorties}, ${scores.flightTimeMinutes}, now())${index < playersScores.length - 1 ? ',' : ''}
       `
     });
     this.startTransaction();
@@ -34,29 +35,43 @@ export class Db {
     this.commitTransaction();
   }
 
-  public getLastUpdateDateForTable = async (tableName: string): Promise<Date | undefined> => {
+  public getPlayersScores = async (dateFrom: Date, dateTo: Date): Promise<IPlayerScores[]> => {
+    interface IQueryResult { name: string, airkill: number, groundkill: number, streakak: number, streakgk: number, deaths: number, sorties: number, flighttimeminutes: number, updatedate: string }
+    let queryString = 'SELECT name, airkill, groundkill, streakak, streakgk, deaths, sorties, flighttimeminutes, updatedate ';
+    queryString += `FROM taw WHERE updateDate > to_timestamp(${dateFrom.getTime()} / 1000.0) AND updateDate < to_timestamp(${dateTo.getTime()} / 1000.0)`;
+    const result = await this.query<IQueryResult>(queryString);
+    return result.rows.map(
+      (row: IQueryResult) => {
+        const playerScores: IPlayerScores = {
+          name: row.name,
+          airKills: row.airkill,
+          groundKills: row.groundkill,
+          streakAk: row.streakak,
+          streakGk: row.streakgk,
+          deaths: row.deaths,
+          sorties: row.sorties,
+          flightTimeMinutes: row.flighttimeminutes,
+          updateDate: new Date(row.updatedate),
+        }
+        return playerScores;
+      }
+    );
+  }
+
+  public getLastUpdateDateByTable = async (tableName: string): Promise<Date | undefined> => {
     const queryString = `SELECT updateDate FROM updatesLog WHERE tableName = '${tableName}' ORDER BY updateDate DESC LIMIT 1`;
-    const result = await this.query<{updatedate: string}>(queryString);
-    if (result.rows.length>0) {
-      const dateString =  result.rows[0].updatedate;
+    const result = await this.query<{ updatedate: string }>(queryString);
+    if (result.rows.length > 0) {
+      const dateString = result.rows[0].updatedate;
       return new Date(dateString);
     }
     return undefined;
   }
 
+  // ################################# PRIVATE QUERIEDS 
   private addUpdateLog = async (tableName: string): Promise<void> => {
     let queryString = `INSERT INTO updatesLog (tableName, updateDate) VALUES ('${tableName}', now())`;
     await this.query(queryString);
-  }
-
-  query = <T>(queryString: string): Promise<QueryResult<T>> => {
-    return new Promise((resolve, reject) => {
-      this.client.query<T>(queryString, (err, res) => {
-        if (err) throw err;
-        resolve(res);
-      });
-    })
-
   }
 
   private checkTables = async () => {
@@ -73,6 +88,7 @@ export class Db {
     }
   }
 
+  // Should be private but is public just for local testing
   dropTables = async () => {
     await this.query('DROP TABLE taw');
     await this.query('DROP TABLE updatesLog');
@@ -119,4 +135,16 @@ export class Db {
   private rollbackTransaction = () => {
     this.query('ROLLBACK;');
   }
+
+  // ################################# GENERAL DB UTILITIES QUERIEDS 
+  query = <T>(queryString: string): Promise<QueryResult<T>> => {
+    return new Promise((resolve, reject) => {
+      this.client.query<T>(queryString, (err, res) => {
+        if (err) throw err;
+        resolve(res);
+      });
+    })
+
+  }
+
 }

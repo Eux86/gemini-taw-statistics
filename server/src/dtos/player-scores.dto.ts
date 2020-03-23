@@ -7,4 +7,5 @@ export interface IPlayerScoresDto {
   deaths: number;
   sorties: number;
   flightTimeMinutes: number;
+  updateDate: string;
 }
