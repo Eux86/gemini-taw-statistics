@@ -61,10 +61,10 @@ export class MigrationsHandler {
       return;
     }
     const sortedMigrations = [...toExecute].sort((a: IMigrationEntry, b: IMigrationEntry) => a.version - b.version);
-    await Promise.all(sortedMigrations.map(async (migrationEntry: IMigrationEntry) => {
+    for (const migrationEntry of sortedMigrations) {
       console.log(`Executing migration ${migrationEntry.name} v${migrationEntry.version}`);
       await this.db.query(migrationEntry.migration.up());
-    }));
+    }
     const currentMaxVersion = this.migrationEntries.reduce((max: number, entry: IMigrationEntry) => max < entry.version ? entry.version : max, 0);
     await this.migrationsTable.update({
       lastUpdate: `now()`,

@@ -16,7 +16,7 @@ export class Db {
     return new Promise((resolve, reject) => {
       this.client.connect()
         .then(() => {
-          this.checkTables();
+          // this.checkTables();
           resolve();
         })
         .catch((error) => reject(error));

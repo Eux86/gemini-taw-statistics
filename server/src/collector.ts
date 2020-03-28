@@ -52,7 +52,10 @@ export class Collector {
     console.log('Collecting data from servers');
     const collectedScores = await this.collect();
     console.log('Storing data');
-    await this.store(collectedScores);
+    if (await this.shouldStore()) {
+      console.log('Updating tables');
+      await this.store(collectedScores);
+    }
     console.log('done');
   }
 
@@ -68,12 +71,20 @@ export class Collector {
     return results;
   }
 
-  private store = async (scrapersResults: IScraperResults[]) => {
+  private shouldStore = async (): Promise<boolean> => {
+    const latestUpdate = await this.updatesLogsTable.getLatestUpdate();
+    const hourDay = 1000 * 60 * 60 * 24;
+    const dayAgo = new Date(Date.now() - hourDay);
 
+    console.log(`Last update: ${latestUpdate}`);
+    return latestUpdate < dayAgo;
+  }
+
+  private store = async (scrapersResults: IScraperResults[]) => {
     const scores = scrapersResults.reduce<IPlayerScores[]>((accumulator, scraperResult) => accumulator.concat(scraperResult.result), []);
     const results = this.db.executeTransaction<QueryResult<IUpdatesLogsTable | IScoresTable>>(
       ...scores.map((playerScore: IPlayerScores) => () => this.scoresTable.add(playerScore as IScoresTable)),
-      () => this.updatesLogsTable.add({ serverCode: 'all' }),
+      () => this.updatesLogsTable.add({ servercode: 'all' }),
     );
     return results;
   }
