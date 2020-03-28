@@ -3,9 +3,9 @@ const https = require('https');
 const http = require('http');
 const path = require('path');
 import express from 'express';
-import { TawScraper } from './taw-scraper';
+import { TawScraper } from './scrapers/taw-scraper';
 import { IPlayerScores } from './business-models/player-scores';
-import { Db } from './db';
+import { Db } from './database/db';
 import { TawController } from './controllers/taw';
 import { IPlayerScoresDto } from './dtos/player-scores.dto';
 
@@ -17,7 +17,7 @@ const update = () => {
       db.getLastUpdateDateByTable('taw')
         .then((lastUpdate?: Date) => {
 
-          const hourDay = 1000 * 60 * 60 * 12;
+          const hourDay = 1000 * 60 * 60 * 24;
           const dayAgo = new Date(Date.now() - hourDay);
 
           console.log(`Last update: ${lastUpdate}`);
