@@ -1,4 +1,4 @@
-import { Db } from "../db";
+import { Db } from "../database/db";
 import { IPlayerScores } from "../business-models/player-scores";
 
 export class TawController {

@@ -1,8 +1,11 @@
 import https from 'https';
 import cheerio from 'cheerio';
-import { IPlayerScores } from './business-models/player-scores';
+import { IPlayerScores } from '../business-models/player-scores';
+import { IScraper } from '../collector';
 
-export class TawScraper {
+export class CboxScraper implements IScraper {
+  id = 'cbox';
+
   getScoresBySquadron = async (squadronName: string): Promise<IPlayerScores[]> => {
     return new Promise((resolve, reject) => {
 
@@ -37,6 +40,7 @@ export class TawScraper {
         deaths: +$(cols[6]).text().trim(),
         sorties: +$(cols[7]).text().trim(),
         flightTimeMinutes: this.parseTimeToMinutes($(cols[8]).text()),
+        serverCode: 'cbox',
       }
       scores.push(entry);
     });
