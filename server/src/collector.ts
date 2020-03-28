@@ -1,9 +1,11 @@
-import { TawScraper } from "./taw-scraper";
-import { IPlayerScores } from "../business-models/player-scores";
-import { Db, Operation } from "../database/db";
-import { CboxScraper } from "./cbox-scraper";
-import { MigrationsHandler } from "../database/migrations-handler";
-import { ScoresTable, IScoresTable } from "../database/tables/scores";
+import { TawScraper } from "./scrapers/taw-scraper";
+import { IPlayerScores } from "./business-models/player-scores";
+import { Db } from "./database/db";
+import { CboxScraper } from "./scrapers/cbox-scraper";
+import { MigrationsHandler } from "./database/migrations-handler";
+import { ScoresTable, IScoresTable } from "./database/tables/scores";
+import { UpdatesLogsTable, IUpdatesLogsTable } from "./database/tables/updates-log";
+import { QueryResult } from "pg";
 
 
 interface IScheduledScraper {
@@ -37,15 +39,21 @@ const scheduledScrapers: IScheduledScraper[] = [
 
 export class Collector {
   private scoresTable: ScoresTable;
-  constructor(scoresTable: ScoresTable) {
+  private updatesLogsTable: UpdatesLogsTable;
+  private db: Db;
+  constructor(db: Db, scoresTable: ScoresTable, updatesLogsTable: UpdatesLogsTable) {
+    this.db = db;
     this.scoresTable = scoresTable;
+    this.updatesLogsTable = updatesLogsTable;
     this.test()
   }
 
   private async test() {
+    console.log('Collecting data from servers');
     const collectedScores = await this.collect();
-    console.log(JSON.stringify(collectedScores, null, 2));    //testing
+    console.log('Storing data');
     await this.store(collectedScores);
+    console.log('done');
   }
 
   private collect(): Promise<{
@@ -60,15 +68,18 @@ export class Collector {
     return results;
   }
 
-  private store = async (scrapersResults: IScraperResults[]): Promise<void[]> => {
+  private store = async (scrapersResults: IScraperResults[]) => {
+
     const scores = scrapersResults.reduce<IPlayerScores[]>((accumulator, scraperResult) => accumulator.concat(scraperResult.result), []);
-    return this.scoresTable.executeTransaction<any>(
-      ...scores.map((playerScore: IPlayerScores): Operation<any> => () => this.scoresTable.add(playerScore as IScoresTable))
+    const results = this.db.executeTransaction<QueryResult<IUpdatesLogsTable | IScoresTable>>(
+      ...scores.map((playerScore: IPlayerScores) => () => this.scoresTable.add(playerScore as IScoresTable)),
+      () => this.updatesLogsTable.add({ serverCode: 'all' }),
     );
+    return results;
   }
 }
 
 const db = new Db();
 db.connect();
 new MigrationsHandler(db);
-new Collector(new ScoresTable(db));
+new Collector(db, new ScoresTable(db), new UpdatesLogsTable(db));

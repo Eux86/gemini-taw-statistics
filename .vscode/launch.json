@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/server/src/scrapers/collector.ts",
+      "program": "${workspaceFolder}/server/src/collector.ts",
       "preLaunchTask": "npm: build:server",
       "outFiles": ["${workspaceFolder}/server/build/**/*.js"]
     }

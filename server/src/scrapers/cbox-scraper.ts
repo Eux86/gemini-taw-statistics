@@ -1,7 +1,7 @@
 import https from 'https';
 import cheerio from 'cheerio';
 import { IPlayerScores } from '../business-models/player-scores';
-import { IScraper } from './collector';
+import { IScraper } from '../collector';
 
 export class CboxScraper implements IScraper {
   id = 'cbox';

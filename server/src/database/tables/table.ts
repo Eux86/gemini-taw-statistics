@@ -1,4 +1,4 @@
-import { Db, Operation } from "../db"
+import { Db } from "../db"
 import { QueryResult } from "pg";
 
 export class Table<T> {
@@ -18,7 +18,7 @@ export class Table<T> {
     }
   }
 
-  add = async (entry: T): Promise<QueryResult> => {
+  add = async (entry: T): Promise<QueryResult<T>> => {
     const fields = Object.keys(entry);
     const fieldsString = `(${fields.join(', ')})`;
     let values = Object.values(entry);
@@ -31,6 +31,4 @@ export class Table<T> {
     const updateString = Object.keys(entry).map((key: string) => `${key} = '${entry[key]}'`)
     return this.db.query(`UPDATE ${this.tableName} SET ${updateString} WHERE ${whereCondition}`);
   }
-
-  executeTransaction = <T>(...operations:Operation<T>[]) => this.db.executeTransaction(...operations);
 }

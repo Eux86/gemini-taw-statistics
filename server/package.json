@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node ./build/index.js",
     "start:dev": "tsc && tsc-watch & nodemon ./build/index.js",
-    "start:collector": "tsc && tsc-watch & nodemon ./build/scrapers/collector.js",
+    "start:collector": "tsc && node ./build/collector.js",
+    "start:collector:watch": "tsc && tsc-watch & nodemon ./build/collector.js",
     "build": "tsc --project tsconfig.json",
     "debug": "node --nolazy --inspect-brk=9229 ./build/scrapers/collector.js"
   },

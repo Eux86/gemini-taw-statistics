@@ -4,8 +4,8 @@ export default {
   up: () =>
     `
     CREATE TABLE updatesLog(
-      ID SERIAL PRIMARY KEY NOT NULL,
-      tableName TEXT,
+      id SERIAL PRIMARY KEY NOT NULL,
+      serverCode TEXT,
       updateDate TIMESTAMP DEFAULT now()
    );
     `

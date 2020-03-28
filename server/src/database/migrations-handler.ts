@@ -9,7 +9,7 @@ interface IMigrationEntry { version: number; migration: IMigration, name: string
 export class MigrationsHandler {
   migrationEntries: IMigrationEntry[] = [];
   migrationFilesPattern = '^v(\\d*)\\.(.*)(.js)$';
-  migrationsInfo: IMigrationsTable = { id: '0', lastUpdate: '', version: 0 };
+  migrationsInfo: IMigrationsTable = { id: '0', lastUpdate: '', version: -1 };
   migrationsTable: MigrationsTable;
   db: Db;
 
@@ -60,7 +60,8 @@ export class MigrationsHandler {
       console.log('No new migrations to execute.');
       return;
     }
-    await Promise.all(toExecute.map(async (migrationEntry: IMigrationEntry) => {
+    const sortedMigrations = [...toExecute].sort((a: IMigrationEntry, b: IMigrationEntry) => a.version - b.version);
+    await Promise.all(sortedMigrations.map(async (migrationEntry: IMigrationEntry) => {
       console.log(`Executing migration ${migrationEntry.name} v${migrationEntry.version}`);
       await this.db.query(migrationEntry.migration.up());
     }));

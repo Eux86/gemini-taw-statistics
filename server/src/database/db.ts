@@ -1,7 +1,7 @@
 import { Client, QueryResult } from 'pg';
 import { IPlayerScores } from '../business-models/player-scores';
 
-export type Operation<T = any> = (...args: any) => Promise<T>;
+// export type Operation<T = any> = (...args: any) => Promise<T>;
 export class Db {
   client: Client;
 
@@ -71,22 +71,17 @@ export class Db {
   }
 
 
-  public executeTransaction = async <T>(...operations: Operation<T>[]) => {
-    // operations.forEach((operation: Operation<T>) => operation())
-
+  public executeTransaction = async <T>(...operations: (() => Promise<T>)[]): Promise<T[]> => {
     let results;
-    this.startTransaction();
+    await this.startTransaction();
     try {
-      results = await Promise.all(operations.map(async (operation: Operation<T>) => {
-        const result = await operation();
-        return result;
-      }));
+      results = await Promise.all<T>(operations.map(x => x()));
     } catch (error) {
-      this.rollbackTransaction()
-      throw new Error(error);
+      await this.rollbackTransaction()
+      return Promise.reject(error);
     }
-    this.commitTransaction();
-    return results;
+    await this.commitTransaction();
+    return Promise.resolve(results);
   }
 
   // ################################# PRIVATE QUERIEDS 
@@ -148,25 +143,27 @@ export class Db {
     console.log(result);
   }
 
-  private startTransaction = () => {
-    this.query('BEGIN;');
+  private startTransaction = async () => {
+    return this.query('BEGIN;');
   }
-  private commitTransaction = () => {
-    this.query('COMMIT;');
+  private commitTransaction = async () => {
+    return this.query('COMMIT;');
   }
-  private rollbackTransaction = () => {
-    this.query('ROLLBACK;');
+  private rollbackTransaction = async () => {
+    return this.query('ROLLBACK;');
   }
 
   // ################################# GENERAL DB UTILITIES QUERIEDS 
-  query = <T>(queryString: string): Promise<QueryResult<T>> => {
-    console.log('EXECUTING QUERY: ' + queryString);
+  query = async <T>(queryString: string): Promise<QueryResult<T>> => {
     return new Promise((resolve, reject) => {
+      // console.log('EXECUTING QUERY: ' + queryString);
       this.client.query<T>(queryString, (err, res) => {
         if (err) {
-          reject(err);
+          console.log('ERROR IN QUERY: ' + queryString);
+          return reject(err);
         }
-        resolve(res);
+        console.log('EXECUTED QUERY: ' + queryString);
+        return resolve(res);
       });
     })
 
