@@ -2,26 +2,15 @@ import https from 'https';
 import cheerio from 'cheerio';
 import { IPlayerScores } from '../business-models/player-scores';
 import { IScraper } from '../collector';
+import { getPageContent } from './utils';
 
 export class TawScraper implements IScraper {
   id = 'taw';
 
   getScoresBySquadron = async (squadronName: string): Promise<IPlayerScores[]> => {
-    return new Promise((resolve, reject) => {
-
-      https.get(`https://taw.stg2.de/squad_stats.php?name=${squadronName}`, (resp: any) => {
-        let data = '';
-        resp.on('data', (chunk: any) => {
-          data += chunk;
-        });
-        resp.on('end', () => {
-          const parsed = this.parseSquadronScores(data);
-          resolve(parsed);
-        });
-      }).on("error", (err: any) => {
-        reject("Error: " + err.message);
-      });
-    })
+    const data = await getPageContent(`https://taw.stg2.de/squad_stats.php?name=${squadronName}`);
+    const parsed = this.parseSquadronScores(data);
+    return parsed;
   }
 
   private parseSquadronScores = (data: string): IPlayerScores[] => {
