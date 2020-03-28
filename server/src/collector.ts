@@ -45,10 +45,17 @@ export class Collector {
     this.db = db;
     this.scoresTable = scoresTable;
     this.updatesLogsTable = updatesLogsTable;
-    this.test()
   }
 
-  private async test() {
+  public start = (updateFrequencyInHours: number) => {
+    this.run();
+
+    // Remember: this won't work on Heroku since the dino will go down after 30 minutes of inactivity
+    const self = this;
+    setInterval(() => self.run(), updateFrequencyInHours * 60 * 36000);
+  }
+
+  private run = async () => {
     console.log('Collecting data from servers');
     const collectedScores = await this.collect();
     console.log('Storing data');
@@ -59,10 +66,10 @@ export class Collector {
     console.log('done');
   }
 
-  private collect(): Promise<{
+  private collect = async (): Promise<{
     scheduledScraper: IScheduledScraper;
     result: IPlayerScores[];
-  }[]> {
+  }[]> => {
     const results = Promise.all(scheduledScrapers.map(async (scheduledScraper: IScheduledScraper) => {
       const result = await scheduledScraper.scraper.getScoresBySquadron('=GEMINI=');
       scheduledScraper.lastUpdate = new Date(Date.now());
@@ -93,4 +100,5 @@ export class Collector {
 const db = new Db();
 db.connect();
 new MigrationsHandler(db);
-new Collector(db, new ScoresTable(db), new UpdatesLogsTable(db));
+const collector = new Collector(db, new ScoresTable(db), new UpdatesLogsTable(db));
+collector.start(1);
