@@ -6,6 +6,7 @@
     "outDir": "./build",
     "strict": true,
     "esModuleInterop": true,
-    "declaration": true
+    "declaration": true,
+    "sourceMap": true
   }
 }

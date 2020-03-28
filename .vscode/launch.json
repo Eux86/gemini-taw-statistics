@@ -8,13 +8,9 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}/index.ts",
-      "outFiles": [
-        "${workspaceFolder}/build/**/*.js"
-      ]
+      "program": "${workspaceFolder}/server/src/scrapers/collector.ts",
+      "preLaunchTask": "npm: build:server",
+      "outFiles": ["${workspaceFolder}/server/build/**/*.js"]
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { Client, QueryResult } from 'pg';
-import { IPlayerScores } from './business-models/player-scores';
+import { IPlayerScores } from '../business-models/player-scores';
 
+export type Operation<T = any> = (...args: any) => Promise<T>;
 export class Db {
   client: Client;
 
@@ -52,6 +53,7 @@ export class Db {
           sorties: row.sorties,
           flightTimeMinutes: row.flighttimeminutes,
           updateDate: new Date(row.updatedate),
+          serverCode: 'taw',
         }
         return playerScores;
       }
@@ -66,6 +68,25 @@ export class Db {
       return new Date(dateString);
     }
     return undefined;
+  }
+
+
+  public executeTransaction = async <T>(...operations: Operation<T>[]) => {
+    // operations.forEach((operation: Operation<T>) => operation())
+
+    let results;
+    this.startTransaction();
+    try {
+      results = await Promise.all(operations.map(async (operation: Operation<T>) => {
+        const result = await operation();
+        return result;
+      }));
+    } catch (error) {
+      this.rollbackTransaction()
+      throw new Error(error);
+    }
+    this.commitTransaction();
+    return results;
   }
 
   // ################################# PRIVATE QUERIEDS 
@@ -107,6 +128,7 @@ export class Db {
       deaths INT,
       sorties INT,
       flightTimeMinutes INT,
+      serverCode TEXT,
       updateDate TIMESTAMP DEFAULT now()
    );
     `;
@@ -138,9 +160,12 @@ export class Db {
 
   // ################################# GENERAL DB UTILITIES QUERIEDS 
   query = <T>(queryString: string): Promise<QueryResult<T>> => {
+    console.log('EXECUTING QUERY: ' + queryString);
     return new Promise((resolve, reject) => {
       this.client.query<T>(queryString, (err, res) => {
-        if (err) throw err;
+        if (err) {
+          reject(err);
+        }
         resolve(res);
       });
     })
