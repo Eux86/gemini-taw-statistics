@@ -3,7 +3,7 @@ import Chart from 'chart.js';
 import './App.css';
 import { IPlayerScoresDto } from 'gemini-statistics-api/build/dtos/player-scores.dto';
 
-function App() {
+function App_OLD() {
   const chartRef = React.useRef<HTMLCanvasElement>(null);
   const historyChartRef = React.useRef<HTMLCanvasElement>(null);
 
@@ -187,4 +187,4 @@ function App() {
   );
 }
 
-export default App;
+export default App_OLD;

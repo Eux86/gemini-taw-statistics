@@ -51,6 +51,7 @@ export class Collector {
     this.run();
 
     // Remember: this won't work on Heroku since the dino will go down after 30 minutes of inactivity
+    // The dino is waken up at night using https://cron-job.org/, so it should run the collector at that time
     const self = this;
     setInterval(() => self.run(), updateFrequencyInHours * 60 * 36000);
   }
