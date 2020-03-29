@@ -18,6 +18,14 @@ export class Table<T> {
     }
   }
 
+  getAll = async (): Promise<QueryResult<T>> => {
+    try {
+      return (await this.db.query<T>(`SELECT * FROM ${this.tableName}`));
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   add = async (entry: T): Promise<QueryResult<T>> => {
     const fields = Object.keys(entry);
     const fieldsString = `(${fields.join(', ')})`;

@@ -1,5 +1,5 @@
 import { TawScraper } from "./scrapers/taw-scraper";
-import { IPlayerScores } from "./business-models/player-scores";
+import { IPlayerScores } from "./models/player-scores";
 import { Db } from "./database/db";
 import { CboxScraper } from "./scrapers/cbox-scraper";
 import { MigrationsHandler } from "./database/migrations-handler";

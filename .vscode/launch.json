@@ -7,8 +7,16 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Collector",
       "program": "${workspaceFolder}/server/src/collector.ts",
+      "preLaunchTask": "npm: build:server",
+      "outFiles": ["${workspaceFolder}/server/build/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Server",
+      "program": "${workspaceFolder}/server/src/server.ts",
       "preLaunchTask": "npm: build:server",
       "outFiles": ["${workspaceFolder}/server/build/**/*.js"]
     }

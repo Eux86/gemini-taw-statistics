@@ -16,7 +16,7 @@ function App() {
   const [totalFlightTime, setTotalFlightTime] = React.useState(0);
 
   const getList = async () => {
-    const response = await fetch('/api/taw/lastYearScores');
+    const response = await fetch('/api/scores');
     const list = await response.json();
     setData(list);
   }

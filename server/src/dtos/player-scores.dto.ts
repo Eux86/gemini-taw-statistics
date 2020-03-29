@@ -8,4 +8,5 @@ export interface IPlayerScoresDto {
   sorties: number;
   flightTimeMinutes: number;
   updateDate: string;
+  serverCode: string;
 }

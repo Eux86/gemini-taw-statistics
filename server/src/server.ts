@@ -2,30 +2,31 @@ require('dotenv').config()
 const http = require('http');
 const path = require('path');
 import express from 'express';
-import { IPlayerScores } from './business-models/player-scores';
 import { Db } from './database/db';
-import { TawController } from './controllers/taw';
-import { IPlayerScoresDto } from './dtos/player-scores.dto';
+import { ScoresService } from './services/scores';
+import routes from './routes';
+import { applyRoutes } from './utils';
+import { IServices } from './models/i-services';
+import { ScoresTable } from './database/tables/scores';
+
 
 // ############ INITIALIZE STACK #####################
 const db = new Db();
-const tawController = new TawController(db);
 db.connect();
-// db.dropTables();
-const router = express();
+const scoresTable = new ScoresTable(db);
+const services: IServices = {
+  scores: new ScoresService(scoresTable),
+}
 // ####################################################
 
-// ############### ROUTES ##################
-router.get('/api/taw/lastYearScores', async (req, res) => {
-  const scores = await tawController.getLastYearStatistics();
-  const scoresDto: IPlayerScoresDto[] = scores.map((score: IPlayerScores) => ({...score, updateDate: score.updateDate?.toUTCString()} as IPlayerScoresDto))
-return res.send(JSON.stringify(scoresDto));
-});
+const router = express();
+applyRoutes(routes, router, services);
+
+// ############### HOME PAGE (TO REMOVE FROM HERE) ################
 router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/../../client/build/index.html'));
 });
 router.use(express.static(path.join(__dirname, '../../client/build')));
-// ############################################
 
 // ############## SERVER STARTUP ##############
 const { PORT = 8080 } = process.env;

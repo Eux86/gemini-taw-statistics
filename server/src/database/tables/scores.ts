@@ -1,18 +1,19 @@
 import { Table } from "./table";
 import { Db } from "../db";
+import { IPlayerScores } from "../../models/player-scores";
 
 export interface IScoresTable {
   id?: string;
   name: string;
-  airKills: number;
-  groundKills: number;
-  streakAk: number;
-  streakGk: number;
+  airkills: number;
+  groundkills: number;
+  streakak: number;
+  streakgk: number;
   deaths: number;
   sorties: number;
-  flightTimeMinutes: number;
-  serverCode: string;
-  updateDate?: Date;
+  flighttimeminutes: number;
+  servercode: string;
+  updatedate?: Date;
 }
 
 export class ScoresTable extends Table<IScoresTable> {
