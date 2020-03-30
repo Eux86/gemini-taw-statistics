@@ -39,4 +39,45 @@ export class Table<T> {
     const updateString = Object.keys(entry).map((key: string) => `${key} = '${entry[key]}'`)
     return this.db.query(`UPDATE ${this.tableName} SET ${updateString} WHERE ${whereCondition}`);
   }
+
+  select = (...fields: Array<keyof T>) => {
+    const queryString = `SELECT ${fields.join(',') || '*'} FROM ${this.tableName} `;
+    return {
+      where: this.where(queryString, this),
+      orderBy: this.orderBy(queryString, this),
+      limit: this.limit(queryString, this),
+      queryString: queryString,
+    }
+  }
+
+  where = (previous: string, _this: Table<T>) => (fieldName: keyof T, value: string) => {
+    const queryString = `${previous} WHERE ${fieldName} = ${value}`;
+    return {
+      execute: _this.execute(queryString, _this),
+      orderBy: _this.orderBy(queryString, _this),
+      limit: _this.limit(queryString, _this),
+      queryString: queryString,
+    }
+  }
+
+  orderBy = (previous: string, _this: Table<T>) => (fieldName: keyof T, desc: boolean = false) => {
+    const queryString = `${previous} ORDER BY ${fieldName} ${desc ? 'DESC' : ''}`;
+    return {
+      execute: _this.execute(queryString, _this),
+      limit: _this.limit(queryString, _this),
+      queryString: queryString,
+    }
+  }
+  
+  limit = (previous: string, _this: Table<T>) => (rowsNumber: number) => {
+    const queryString = `${previous} LIMIT ${rowsNumber}`;
+    return {
+      execute: _this.execute(queryString, _this),
+      queryString: queryString,
+    }
+  }
+
+  execute = (previous: string, _this: Table<T>) => async (): Promise<QueryResult<T>> => {
+    return await _this.db.query(`${previous};`);
+  }
 }

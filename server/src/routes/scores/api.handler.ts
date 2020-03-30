@@ -12,6 +12,15 @@ export const getScores = (services: IServices): RequestHandler => async (_: Requ
   response.send(JSON.stringify(playersScoresDto, null, 2));
 };
 
+export const getLatestScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  const playersScores = await scores.getLatestScores();
+  const playersScoresDto = playersScores.map(transformIPlayerScoresToDto);
+  response.send(JSON.stringify(playersScoresDto, null, 2));
+};
+
 export const getCsv = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
   const {
     scores
