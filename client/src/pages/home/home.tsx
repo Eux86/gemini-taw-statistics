@@ -27,22 +27,26 @@ export const HomePage: React.FunctionComponent<IProps> = (props) => {
   const year = today.getFullYear();
 
   return (
-    <div className="main-container">
-      <h1>=Gemini= <span className="text-primary">Statistics</span></h1>
-      <p>Scores for the current month: <span className="text-primary">{monthsName[month]}</span></p>
-      <div className="site-section-heading">
-        <h2>Performance history</h2>
+    <>
+      <div className="header">
+        <h1>=Gemini= <span className="text-accent">Statistics</span></h1>
       </div>
-      <p>How Ground and Air kills compare between each other and the number of deaths.</p>
-      <PerformanceByMonth month={month} year={year} />
-      <div className="site-section-heading">
-        <h2>Scores</h2>
+      <div className="main-container">
+        <h2 className="centered">{monthsName[month]} - {year}</h2>
+        <div className="site-section-heading">
+          <h2>Performance history</h2>
+        </div>
+        <p>How Ground and Air kills compare between each other and the number of deaths.</p>
+        <PerformanceByMonth month={month} year={year} />
+        <div className="site-section-heading">
+          <h2>Scores</h2>
+        </div>
+        <LatestScores />
+        <div className="site-section-heading">
+          <h2>Personal Scores</h2>
+        </div>
+        <p>WIP</p>
       </div>
-      <LatestScores />
-      <div className="site-section-heading">
-        <h2>Personal Scores</h2>
-      </div>
-      <p>WIP</p>
-    </div>
+    </>
   )
 }

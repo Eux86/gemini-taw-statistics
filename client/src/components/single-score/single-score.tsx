@@ -9,7 +9,7 @@ interface IProps {
 export const SingleScore: React.FunctionComponent<IProps> = ({title, value}) => {
   return (
     <div className="score">
-      <label>{title}</label>
+      <label className="text-primary">{title}</label>
       <p>{value}</p>
     </div>
   )

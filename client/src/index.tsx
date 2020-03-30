@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App_old';
 import * as serviceWorker from './serviceWorker';
 import { HomePage } from './pages/home/home';
 
