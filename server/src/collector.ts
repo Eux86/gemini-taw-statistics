@@ -59,10 +59,10 @@ export class Collector {
   private run = async () => {
     console.log('Only collecting between 7 and 9 am');
     const d = new Date();
-    if (!(d.getHours() > 7 && d.getHours() < 9)) {
-      console.log('Not collecting');
-      return;
-    }
+    //if (!(d.getHours() > 7 && d.getHours() < 9)) {
+    //  console.log('Not collecting');
+    //  return;
+    //}
     console.log('Collecting data from servers');
     const collectedScores = await this.collect();
     console.log('Storing data');
