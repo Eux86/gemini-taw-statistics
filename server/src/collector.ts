@@ -65,9 +65,8 @@ export class Collector {
     //}
     console.log('Collecting data from servers');
     const collectedScores = await this.collect();
-    console.log('Storing data');
     if (await this.shouldStore()) {
-      console.log('Updating tables');
+      console.log('Storing data');
       await this.store(collectedScores);
     }
     console.log('done');
@@ -91,6 +90,9 @@ export class Collector {
     const dayAgo = new Date(Date.now() - hourDay);
 
     console.log(`Last update: ${latestUpdate}`);
+    console.log(`Current date: ${new Date(Date.now())}`);
+    const shouldStore = latestUpdate < dayAgo;
+    console.log(`${shouldStore?'':'Not'} storing`);
     return latestUpdate < dayAgo;
   }
 
