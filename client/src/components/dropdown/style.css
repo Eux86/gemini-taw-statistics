@@ -1,0 +1,25 @@
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  font-size: inherit;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgb(223, 228, 232);
+  border-radius: 0;
+  width: 100%;
+  padding: 8px 0;
+  color: var(--normal);
+  z-index: 1;
+}
+.wrapper {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+.wrapper svg {
+  position: absolute;
+  right: 0;
+  z-index: 0;
+  fill: var(--textPrimary);
+}

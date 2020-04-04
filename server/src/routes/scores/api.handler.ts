@@ -33,3 +33,19 @@ export const getCsv = (services: IServices): RequestHandler => async (_: Request
   response.set('Content-Type', 'text/csv');
   response.send(Buffer.from(csv));
 };
+
+export const getAvailableMonths = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  const months = await scores.getAvailableMonths();
+  response.send(JSON.stringify(months));
+};
+
+export const getAvailableServers = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  const months = await scores.getAvailableServers();
+  response.send(JSON.stringify(months));
+};

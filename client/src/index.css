@@ -1,6 +1,6 @@
 body {
   --backgroundColor: #232531;
-  --backgroundContrast: #000;
+  --backgroundContrast:  #000;
   --textBasic: #cfcfd1;
   --textPrimary: #fff;
   --textSecondary: #fff;
@@ -17,6 +17,8 @@ body {
 .header {
   background-color: var(--backgroundContrast);
   padding: 10px;
+  color: var(--textPrimary);
+  font-size: 19px;
 }
 .header h1 {
   margin: 0px;

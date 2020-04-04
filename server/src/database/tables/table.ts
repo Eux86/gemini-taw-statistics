@@ -18,14 +18,6 @@ export class Table<T> {
     }
   }
 
-  getAll = async (): Promise<QueryResult<T>> => {
-    try {
-      return (await this.db.query<T>(`SELECT * FROM ${this.tableName}`));
-    } catch (error) {
-      throw new Error(error);
-    }
-  }
-
   add = async (entry: T): Promise<QueryResult<T>> => {
     const fields = Object.keys(entry);
     const fieldsString = `(${fields.join(', ')})`;
@@ -42,6 +34,16 @@ export class Table<T> {
 
   select = (...fields: Array<keyof T>) => {
     const queryString = `SELECT ${fields.join(',') || '*'} FROM ${this.tableName} `;
+    return {
+      where: this.where(queryString, this),
+      orderBy: this.orderBy(queryString, this),
+      limit: this.limit(queryString, this),
+      queryString: queryString,
+    }
+  }
+
+  selectDistinct = (...fields: Array<keyof T>) => {
+    const queryString = `SELECT DISTINCT ${fields.join(',') || '*'} FROM ${this.tableName} `;
     return {
       where: this.where(queryString, this),
       orderBy: this.orderBy(queryString, this),

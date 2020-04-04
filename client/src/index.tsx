@@ -3,10 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { HomePage } from './pages/home/home';
+import { FiltersProvider } from './data/filters-context';
 
 ReactDOM.render(
   <React.StrictMode>
-    <HomePage />
+    <FiltersProvider>
+      <HomePage />
+    </FiltersProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

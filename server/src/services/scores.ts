@@ -9,7 +9,7 @@ export class ScoresService {
   }
 
   getAllScores = async (): Promise<IPlayerScores[]> => {
-    const result = await this.scoresTable.getAll();
+    const result = await this.scoresTable.select().orderBy('updatedate').execute();
     const playerScores = result.rows.map((row: IScoresTable): IPlayerScores => ({
       airKills: row.airkills,
       deaths: row.deaths,
@@ -41,5 +41,28 @@ export class ScoresService {
       updateDate: row.updatedate
     }));
     return playerScores;
+  }
+
+  getAvailableMonths = async (): Promise<string[]> => {
+    const results = this.scoresTable.selectDistinct('updatedate').orderBy('updatedate', true).execute();
+    const uniqueDates = (await results).rows.map(row => this.toMonthYear(row.updatedate)).filter(this.unique);
+    return uniqueDates;
+  }
+
+  getAvailableServers = async (): Promise<string[]> => {
+    const results = this.scoresTable.selectDistinct('servercode').orderBy('servercode', true).execute();
+    const uniqueServers = (await results).rows.map(row => row.servercode).filter(this.unique);
+    return uniqueServers;
+  }
+
+  private unique = (value: any, index: number, self: Array<any>) => {
+    return self.indexOf(value) === index;
+  }
+
+  private toMonthYear = (date?: Date) => {
+    if (!date) throw new Error('no date defined');
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    return `${month}-${year}`;
   }
 }

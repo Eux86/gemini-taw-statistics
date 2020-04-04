@@ -1,17 +1,16 @@
 import React, { FunctionComponent } from 'react';
 import Chart from 'chart.js';
-import { useScoresByMonth } from '../../api/use-scores-by-month';
+import { useScores } from '../../api/use-scores';
+import { FiltersContext } from '../../data/filters-context';
 
 interface IProps {
-  month: number;
-  year: number;
 }
 
-export const PerformanceByMonth: FunctionComponent<IProps> = ({ month, year }) => {
+export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const [chart, setChart] = React.useState<Chart | undefined>(undefined);
+  const [,setChart] = React.useState<Chart | undefined>(undefined);
 
-  const [data] = useScoresByMonth(month, year);
+  const [data] = useScores();
   const [totalAirKillsByDate, setTotalAirKillsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);
   const [totalGroundKillsByDate, setTotalGroundKillsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);
   const [totalDeathsByDate, setTotalDeathsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);

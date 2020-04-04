@@ -1,3 +1,22 @@
 .main-container {
   padding: 15px;
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.header-right div {
+  padding: 10px;
+}
+
+.header h3 {
+  margin:0px
+}
