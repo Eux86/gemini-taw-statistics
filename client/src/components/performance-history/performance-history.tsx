@@ -1,14 +1,38 @@
 import React, { FunctionComponent } from 'react';
 import Chart from 'chart.js';
 import { useScores } from '../../api/use-scores';
-import { FiltersContext } from '../../data/filters-context';
 
 interface IProps {
 }
 
+interface IDeltaBuilderEntry {
+  prevDate: string;
+  prevValue: number;
+  array: { [key: string]: number };
+}
+
+const deltaBuilder = (valuesObject: { [key: string]: number }): IDeltaBuilderEntry => {
+  return Object.keys(valuesObject)?.reduce<IDeltaBuilderEntry>((prev, current) => {
+    const currentValue = valuesObject[current]
+    if (!prev.prevDate) {
+      return {
+        prevDate: current,
+        prevValue: currentValue,
+        array: { [current]: 0 },
+      }
+    }
+    return {
+      prevDate: current,
+      prevValue: currentValue,
+      array: { ...prev.array, [current]: Math.max(currentValue - prev.prevValue, 0) },
+    }
+  }, {} as IDeltaBuilderEntry);
+}
+
+
 export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const [,setChart] = React.useState<Chart | undefined>(undefined);
+  const [, setChart] = React.useState<Chart | undefined>(undefined);
 
   const [data] = useScores();
   const [totalAirKillsByDate, setTotalAirKillsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);
@@ -16,25 +40,30 @@ export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
   const [totalDeathsByDate, setTotalDeathsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);
 
   React.useEffect(() => {
-    const totalAirKillsByDate = data?.reduce((prev, current) => {
+    if (!data) return;
+    const totalAirKillsByDate = data.reduce((prev, current) => {
       prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.airKills;
       return prev;
     }, {} as { [key: string]: number })
-    setTotalAirKillsByDate(totalAirKillsByDate);
+    const airKillsDeltasByDate = deltaBuilder(totalAirKillsByDate);
+    setTotalAirKillsByDate(airKillsDeltasByDate.array);
 
     const totalGroundKillsByDate = data?.reduce((prev, current) => {
       prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.groundKills;
       return prev;
     }, {} as { [key: string]: number })
-    setTotalGroundKillsByDate(totalGroundKillsByDate);
+    const groundKillsDeltasByDate = deltaBuilder(totalGroundKillsByDate);
+    setTotalGroundKillsByDate(groundKillsDeltasByDate.array);
 
     const totalDeathsByDate = data?.reduce((prev, current) => {
       prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.deaths;
       return prev;
     }, {} as { [key: string]: number })
-    setTotalDeathsByDate(totalDeathsByDate);
-    console.log('deaths', totalDeathsByDate);
+    const deathsDeltasByDate = deltaBuilder(totalDeathsByDate);
+    setTotalDeathsByDate(deathsDeltasByDate.array);
   }, [data]);
+  console.log(totalAirKillsByDate);
+
 
   React.useEffect(() => {
     if (!canvasRef?.current) {
