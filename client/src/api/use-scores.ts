@@ -6,15 +6,13 @@ export const useScores = () => {
   const [data, setData] = React.useState<IPlayerScoresDto[] | undefined>(undefined);
   const { state } = React.useContext(FiltersContext);
 
-  const today = new Date(Date.now());
-  const month = today.getMonth();
-  const year = today.getFullYear();
-
   React.useEffect(() => {
     fetch('/api/scores').then(async (response: Response) => {
       let monthScores: IPlayerScoresDto[] = await response.json();
-      const monthDate = { mm: month, yyyy: year };
-      if (monthDate) {
+      if (state.month) {
+        const month = +state.month.split('-')[0];
+        const year = +state.month.split('-')[1];
+        const monthDate = { mm: month, yyyy: year };
         monthScores = monthScores.filter((score: IPlayerScoresDto) => {
           const date = new Date(score.updateDate);
           const year = date.getFullYear();

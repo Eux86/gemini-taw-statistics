@@ -6,7 +6,7 @@ interface IAction {
 interface IChangeMonthAction extends IAction {
   type: 'change-month-action',
   payload: {
-    month: string;
+    month?: string;
   }
 }
 
@@ -17,7 +17,7 @@ interface IChangeServerCodeAction extends IAction {
   }
 }
 
-export const changeMonthAction = (month: string): IChangeMonthAction => ({
+export const changeMonthAction = (month?: string): IChangeMonthAction => ({
   type: 'change-month-action',
   payload: {
     month: month,

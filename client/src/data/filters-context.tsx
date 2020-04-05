@@ -3,7 +3,7 @@ import { FiltersActions } from './filters-actions';
 import { filtersReducer } from './filters-reducers';
 
 export interface IFiltersStore {
-  month: string;
+  month?: string;
   serverCode?: string;
 }
 
@@ -22,7 +22,6 @@ const FiltersContext = createContext<{
 
 const FiltersProvider: React.FunctionComponent<{}> = ({children}) => {
   const [state, dispatch] = useReducer(filtersReducer, initialState);
-console.log(state);
   return (
     <FiltersContext.Provider value={{state, dispatch}}>
       {children}
