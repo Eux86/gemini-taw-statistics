@@ -71,7 +71,7 @@ export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
     }
     Chart.defaults.global.defaultFontColor = 'white';
     const newChart = new Chart(canvasRef.current, {
-      type: 'line',
+      type: 'bar',
       options: {
         responsive: true,
         maintainAspectRatio: false
@@ -83,19 +83,19 @@ export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
             label: 'Total Air Kills',
             data: Object.values(totalAirKillsByDate || {}),
             borderColor: '#54d400',
-            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            backgroundColor: '#54d400',
           },
           {
             label: 'Total Ground Kills',
             data: Object.values(totalGroundKillsByDate || {}),
             borderColor: '#f09b00',
-            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            backgroundColor: '#f09b00',
           },
           {
             label: 'Total Deaths',
             data: Object.values(totalDeathsByDate || {}),
             borderColor: '#ca0000',
-            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            backgroundColor: '#ca0000',
           }
         ]
       },
