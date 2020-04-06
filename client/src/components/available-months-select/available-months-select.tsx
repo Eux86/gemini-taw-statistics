@@ -3,6 +3,7 @@ import { useAvailableMonths } from '../../api/use-available-months';
 import Dropdown, { IDropdownOption } from '../dropdown/dropdown';
 import { FiltersContext } from '../../data/filters-context';
 import { changeMonthAction } from '../../data/filters-actions';
+import { getMonthNameByIndex, getMonthYearFromCustomTimestring } from '../../utilities';
 
 export const AvailableMonthsSelect: React.FunctionComponent<{}> = (props) => {
   const [data] = useAvailableMonths();
@@ -11,7 +12,14 @@ export const AvailableMonthsSelect: React.FunctionComponent<{}> = (props) => {
 
   React.useEffect(() => {
     if (!data) return;
-    const tempOptions = data.map(month => ({ key: month, value: month }));
+    const tempOptions = data.map(month => {
+      const monthYear = getMonthYearFromCustomTimestring(month);
+      const monthName = getMonthNameByIndex(+monthYear.month);
+      return { 
+        key: month,
+        value: `${monthName} ${monthYear.year}`,
+      }
+    });
     const options = tempOptions.concat({ key: 'all', value: 'All Time' });
     setOptions(options);
   }, [data]);
