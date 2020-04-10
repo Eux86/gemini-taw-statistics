@@ -6,16 +6,20 @@ import { Db } from './database/db';
 import { ScoresService } from './services/scores';
 import routes from './routes';
 import { applyRoutes } from './utils';
-import { IServices } from './models/i-services';
+import { IServices } from './business-models/i-services';
 import { ScoresTable } from './database/tables/scores';
+import { SortiesService } from './services/sorties';
+import { SortiesTable } from './database/tables/sorties';
 
 
 // ############ INITIALIZE STACK #####################
 const db = new Db();
 db.connect();
 const scoresTable = new ScoresTable(db);
+const sortiesTable = new SortiesTable(db);
 const services: IServices = {
   scores: new ScoresService(scoresTable),
+  sorties: new SortiesService(sortiesTable),
 }
 // ####################################################
 

@@ -1,12 +1,12 @@
-import { TawScraper } from "./scrapers/taw-scraper";
-import { IPlayerScores } from "./models/player-scores";
 import { Db } from "./database/db";
-import { CboxScraper } from "./scrapers/cbox-scraper";
 import { MigrationsHandler } from "./database/migrations-handler";
 import { ScoresTable, IScoresTable } from "./database/tables/scores";
 import { UpdatesLogsTable, IUpdatesLogsTable } from "./database/tables/updates-log";
+import { IPlayerScores } from "./business-models/player-scores";
+import { TawPlayerStatsScraper as TawPlayerSortiesScraper } from "./scrapers/taw-player-stats.scraper";
+import { TawScraper } from './scrapers/taw-scraper';
+import { CboxScraper } from './scrapers/cbox-scraper';
 import { QueryResult } from "pg";
-
 
 interface IScheduledScraper {
   scraper: IScraper,
@@ -16,35 +16,43 @@ interface IScheduledScraper {
 
 interface IScraperResults {
   scheduledScraper: IScheduledScraper;
-  result: IPlayerScores[];
+  result?: IPlayerScores[];
 }
 
 export interface IScraper {
   id: string;
-  getScoresBySquadron: (squadronName: string) => Promise<IPlayerScores[]>
+  run: (squadronName: string) => Promise<undefined | IPlayerScores[]>
 }
-
-const scheduledScrapers: IScheduledScraper[] = [
-  {
-    scraper: new TawScraper(),
-    lastUpdate: new Date(0),
-    nextUpdate: undefined,
-  },
-  {
-    scraper: new CboxScraper(),
-    lastUpdate: new Date(0),
-    nextUpdate: undefined,
-  }
-];
 
 export class Collector {
   private scoresTable: ScoresTable;
   private updatesLogsTable: UpdatesLogsTable;
   private db: Db;
+
+  private scheduledScrapers: IScheduledScraper[];
+
   constructor(db: Db, scoresTable: ScoresTable, updatesLogsTable: UpdatesLogsTable) {
     this.db = db;
     this.scoresTable = scoresTable;
     this.updatesLogsTable = updatesLogsTable;
+
+    this.scheduledScrapers = [
+      {
+        scraper: new TawScraper(),
+        lastUpdate: new Date(0),
+        nextUpdate: undefined,
+      },
+      {
+        scraper: new CboxScraper(),
+        lastUpdate: new Date(0),
+        nextUpdate: undefined,
+      },
+      {
+        scraper: new TawPlayerSortiesScraper(this.db),
+        lastUpdate: new Date(0),
+        nextUpdate: undefined,
+      }
+    ];
   }
 
   public start = (updateFrequencyInHours: number) => {
@@ -57,8 +65,8 @@ export class Collector {
   }
 
   private run = async () => {
-    console.log('Only collecting between 7 and 9 am');
-    const d = new Date();
+    // console.log('Only collecting between 7 and 9 am');
+    // const d = new Date();
     //if (!(d.getHours() > 7 && d.getHours() < 9)) {
     //  console.log('Not collecting');
     //  return;
@@ -72,12 +80,9 @@ export class Collector {
     console.log('done');
   }
 
-  private collect = async (): Promise<{
-    scheduledScraper: IScheduledScraper;
-    result: IPlayerScores[];
-  }[]> => {
-    const results = Promise.all(scheduledScrapers.map(async (scheduledScraper: IScheduledScraper) => {
-      const result = await scheduledScraper.scraper.getScoresBySquadron('=GEMINI=');
+  private collect = async (): Promise<IScraperResults[]> => {
+    const results = Promise.all(this.scheduledScrapers.map(async (scheduledScraper: IScheduledScraper) => {
+      const result = await scheduledScraper.scraper.run('=GEMINI=');
       scheduledScraper.lastUpdate = new Date(Date.now());
       return { scheduledScraper, result };
     }));
@@ -92,12 +97,17 @@ export class Collector {
     console.log(`Last update: ${latestUpdate}`);
     console.log(`Current date: ${new Date(Date.now())}`);
     const shouldStore = latestUpdate < dayAgo;
-    console.log(`${shouldStore?'':'Not'} storing`);
+    console.log(`${shouldStore ? '' : 'Not'} storing`);
     return latestUpdate < dayAgo;
   }
 
   private store = async (scrapersResults: IScraperResults[]) => {
-    const scores = scrapersResults.reduce<IPlayerScores[]>((accumulator, scraperResult) => accumulator.concat(scraperResult.result), []);
+    const scores = scrapersResults.reduce<IPlayerScores[]>((accumulator, scraperResult) => {
+      if (scraperResult.result) {
+        return accumulator.concat(scraperResult.result);
+      }
+      return accumulator;
+    }, []);
     const results = this.db.executeTransaction<QueryResult<IUpdatesLogsTable | IScoresTable>>(
       ...scores.map((playerScore: IPlayerScores) => () => this.scoresTable.add(playerScore as IScoresTable)),
       () => this.updatesLogsTable.add({ servercode: 'all' }),

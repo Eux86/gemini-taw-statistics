@@ -1,4 +1,4 @@
-import { IPlayerScores } from "../models/player-scores";
+import { IPlayerScores } from "../business-models/player-scores";
 import { ScoresTable, IScoresTable } from "../database/tables/scores";
 
 export class ScoresService {

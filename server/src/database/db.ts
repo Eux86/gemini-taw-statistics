@@ -1,5 +1,5 @@
 import { Client, QueryResult } from 'pg';
-import { IPlayerScores } from '../models/player-scores';
+import { IPlayerScores } from '../business-models/player-scores';
 
 export class Db {
   client: Client;

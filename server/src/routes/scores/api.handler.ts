@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
-import { IServices } from '../../models/i-services';
-import { transformIPlayerScoresToDto } from '../../transformers';
-import { IPlayerScores } from '../../models/player-scores';
+import { IServices } from '../../business-models/i-services';
+import { transformIPlayerScoresToDto, transformIPlayerKillInfoToDto } from '../../transformers';
+import { IPlayerScores } from '../../business-models/player-scores';
 
 export const getScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
   const {
@@ -48,4 +48,13 @@ export const getAvailableServers = (services: IServices): RequestHandler => asyn
   } = services;
   const months = await scores.getAvailableServers();
   response.send(JSON.stringify(months));
+};
+
+export const getLatestKills = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
+  const {
+    sorties,
+  } = services;
+  const kills = await sorties.getLatestKills();
+  const dto = kills.map(transformIPlayerKillInfoToDto);
+  response.send(JSON.stringify(dto));
 };
