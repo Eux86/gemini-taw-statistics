@@ -1,12 +1,12 @@
 import cheerio from 'cheerio';
-import { IPlayerScores } from '../models/player-scores';
+import { IPlayerScores } from '../business-models/player-scores';
 import { IScraper } from '../collector';
 import { getPageContent } from './utils';
 
 export class CboxScraper implements IScraper {
   id = 'cbox';
 
-  getScoresBySquadron = async (squadronName: string): Promise<IPlayerScores[]> => {
+  run = async (squadronName: string): Promise<IPlayerScores[]> => {
     const data = await getPageContent(`https://combatbox.net/en/pilots/10/${squadronName}/`);
     const parsed = await this.parseSquadronScores(data);
     return parsed;

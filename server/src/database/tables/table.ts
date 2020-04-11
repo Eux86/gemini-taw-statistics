@@ -24,7 +24,8 @@ export class Table<T> {
     let values = Object.values(entry);
     values = values.map((value: any) => `'${value}'`);
     const valuesString = `(${values.join(', ')})`;
-    return this.db.query(`INSERT INTO ${this.tableName} ${fieldsString} VALUES ${valuesString}`);
+    const queryString = `INSERT INTO ${this.tableName} ${fieldsString} VALUES ${valuesString};`
+    return this.db.query<T>(queryString);
   }
 
   update = async (entry: T & { [key: string]: any }, whereCondition: string): Promise<QueryResult<T>> => {
@@ -32,12 +33,30 @@ export class Table<T> {
     return this.db.query(`UPDATE ${this.tableName} SET ${updateString} WHERE ${whereCondition}`);
   }
 
-  select = (...fields: Array<keyof T>) => {
+  select = <J = {}>(...fields: Array<keyof (T & J)>) => {
     const queryString = `SELECT ${fields.join(',') || '*'} FROM ${this.tableName} `;
     return {
       where: this.where(queryString, this),
       orderBy: this.orderBy(queryString, this),
       limit: this.limit(queryString, this),
+      queryString: queryString,
+      innerJoin: this.innerJoin<J>(queryString, this),
+    }
+  }
+
+  innerJoin = <J>(previous: string, _this: Table<T>) => (tableName: string) => {
+    const queryString = `${previous} INNER JOIN ${tableName}`;
+    return {
+      on: this.on<J>(queryString, _this, tableName),
+    }
+  }
+
+  on = <J>(previous: string, _this: Table<T>, tableName: string) => (fieldTable1: keyof T, fieldTable2: keyof J) => {
+    const queryString = `${previous} ON ${this.tableName}.${fieldTable1} = ${tableName}.${fieldTable2} `;
+    return {
+      where: this.where<J>(queryString, this),
+      orderBy: this.orderBy<J>(queryString, this),
+      limit: this.limit<J>(queryString, this),
       queryString: queryString,
     }
   }
@@ -52,34 +71,34 @@ export class Table<T> {
     }
   }
 
-  where = (previous: string, _this: Table<T>) => (fieldName: keyof T, value: string) => {
+  where = <J>(previous: string, _this: Table<T>) => (fieldName: keyof (T & J), value: string) => {
     const queryString = `${previous} WHERE ${fieldName} = ${value}`;
     return {
-      execute: _this.execute(queryString, _this),
-      orderBy: _this.orderBy(queryString, _this),
-      limit: _this.limit(queryString, _this),
+      execute: _this.execute<J>(queryString, _this),
+      orderBy: _this.orderBy<J>(queryString, _this),
+      limit: _this.limit<J>(queryString, _this),
       queryString: queryString,
     }
   }
 
-  orderBy = (previous: string, _this: Table<T>) => (fieldName: keyof T, desc: boolean = false) => {
+  orderBy = <J>(previous: string, _this: Table<T>) => (fieldName: keyof (T & J), desc: boolean = false) => {
     const queryString = `${previous} ORDER BY ${fieldName} ${desc ? 'DESC' : ''}`;
     return {
-      execute: _this.execute(queryString, _this),
-      limit: _this.limit(queryString, _this),
+      execute: _this.execute<J>(queryString, _this),
+      limit: _this.limit<J>(queryString, _this),
       queryString: queryString,
     }
   }
   
-  limit = (previous: string, _this: Table<T>) => (rowsNumber: number) => {
+  limit = <J>(previous: string, _this: Table<T>) => (rowsNumber: number) => {
     const queryString = `${previous} LIMIT ${rowsNumber}`;
     return {
-      execute: _this.execute(queryString, _this),
+      execute: _this.execute<J>(queryString, _this),
       queryString: queryString,
     }
   }
 
-  execute = (previous: string, _this: Table<T>) => async (): Promise<QueryResult<T>> => {
+  execute = <J>(previous: string, _this: Table<T>) => async (): Promise<QueryResult<T & J>> => {
     return await _this.db.query(`${previous};`);
   }
 }

@@ -1,11 +1,14 @@
 import React, { useContext } from 'react';
-import './style.css';
-import { PerformanceByMonth } from '../../components/performance-history/performance-history';
-import { LatestScores } from '../../components/latest-scores/latest-scores';
+import { useLatestDeaths } from '../../api/use-latest-deaths';
+import { useLatestKills } from '../../api/use-latest-kills';
 import { AvailableMonthsSelect } from '../../components/available-months-select/available-months-select';
 import { AvailableServersSelect } from '../../components/available-servers-select/available-servers-select';
+import { KillsList } from '../../components/kills-list/kills-list';
+import { LatestScores } from '../../components/latest-scores/latest-scores';
+import { PerformanceByMonth } from '../../components/performance-history/performance-history';
 import { FiltersContext } from '../../data/filters-context';
 import { getMonthNameByIndex } from '../../utilities';
+import './style.css';
 
 export interface IProps {
 
@@ -15,6 +18,8 @@ export const HomePage: React.FunctionComponent<IProps> = (props) => {
   const { state } = useContext(FiltersContext);
   const selectedMonthName = state.month ? state.month === 'all' ? 'every month' : getMonthNameByIndex(+state.month.split('-')[0]) : '';
   const selectedYear = state.month?.split('-')[1]
+  const [latestKills] = useLatestKills();
+  const [latestDeaths] = useLatestDeaths();
   return (
     <>
       <div className="header">
@@ -40,9 +45,13 @@ export const HomePage: React.FunctionComponent<IProps> = (props) => {
         </div>
         <LatestScores />
         <div className="site-section-heading">
-          <h2>Personal Scores</h2>
+          <h2>Latest Kills</h2>
         </div>
-        <p>WIP</p>
+        <KillsList kills={latestKills} color="#00ffb0" />
+        <div className="site-section-heading">
+          <h2>Latest Deaths</h2>
+        </div>
+        <KillsList kills={latestDeaths} color="#da5737"/>
       </div>
     </>
   )

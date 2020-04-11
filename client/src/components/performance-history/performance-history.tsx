@@ -101,6 +101,9 @@ export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
       },
     });
     setChart(newChart);
+    return (() => {
+      newChart.destroy();
+    })
   }, [canvasRef, totalAirKillsByDate, totalGroundKillsByDate, totalDeathsByDate]);
 
   const formatDate = (dateString: string) => {

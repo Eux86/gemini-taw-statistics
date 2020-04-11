@@ -2,7 +2,7 @@ import https from 'https';
 
 export const getPageContent = async (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    https.get(url, (resp: any) => {
+    const request = https.get(url, (resp: any) => {
       let data = '';
       resp.on('data', (chunk: any) => {
         data += chunk;
@@ -12,6 +12,9 @@ export const getPageContent = async (url: string): Promise<string> => {
       });
     }).on("error", (err: any) => {
       reject("Error: " + err.message);
+    });
+    request.setTimeout(10000, () => {
+      reject({ code: 'timeout', message: `Request timeout for url: ${url}` });
     });
   })
 }
