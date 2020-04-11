@@ -18,7 +18,7 @@ const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   let month: string = getMonthNameByIndex(date.getMonth());
   month = (+month < 10 ? '0' : '') + month;
-  let day: string = '' + (date.getDate() + 1);
+  let day: string = '' + (date.getDate());
   day = (+day < 10 ? '0' : '') + day;
   return `${day} ${month} ${date.toLocaleTimeString()}`
 }
