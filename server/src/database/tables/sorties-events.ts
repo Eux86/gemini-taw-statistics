@@ -5,8 +5,7 @@ export interface ISortieEventsTable {
   id?: string;
   sortieHash: number;
   event: string;
-  object?: string;
-  type: string;
+  target?: string;
   enemyplayer?: string;
   date: string;
 }

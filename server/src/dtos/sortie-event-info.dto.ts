@@ -1,5 +1,5 @@
 
-export interface IPlayerKillInfoDto {
+export interface ISortieEventInfoDto {
   date: string;
   playerName: string;
   serverCode: string;

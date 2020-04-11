@@ -1,7 +1,7 @@
 import { IPlayerScores } from "../business-models/player-scores";
 import { IPlayerScoresDto } from "../dtos/player-scores.dto";
-import { IPlayerKillInfo } from "../business-models/player-kill-info";
-import { IPlayerKillInfoDto } from "../dtos/player-kill-info.dto";
+import { ISortieEventInfo } from "../business-models/sortie-event-info";
+import { ISortieEventInfoDto } from "../dtos/sortie-event-info.dto";
 
 
 export const transformIPlayerScoresToDto = (scores: IPlayerScores): IPlayerScoresDto => {
@@ -19,7 +19,7 @@ export const transformIPlayerScoresToDto = (scores: IPlayerScores): IPlayerScore
   } as IPlayerScoresDto
 }
 
-export const transformIPlayerKillInfoToDto = (info: IPlayerKillInfo): IPlayerKillInfoDto => {
+export const transformIPlayerKillInfoToDto = (info: ISortieEventInfo): ISortieEventInfoDto => {
   return {
     date: info.date,
     enemyAircraft: info.enemyAircraft,
@@ -28,5 +28,5 @@ export const transformIPlayerKillInfoToDto = (info: IPlayerKillInfo): IPlayerKil
     playerName: info.playerName,
     serverCode: info.serverCode,
     takeOffAt: info.takeOffAt,
-  } as IPlayerKillInfoDto
+  } as ISortieEventInfoDto
 }

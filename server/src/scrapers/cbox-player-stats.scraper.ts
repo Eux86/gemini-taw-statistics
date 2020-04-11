@@ -1,19 +1,19 @@
 import cheerio from 'cheerio';
+import { SortieEvent } from '../business-models/sortie-event';
 import { IScraper } from '../collector';
 import { Db } from '../database/db';
 import { SortiesTable } from '../database/tables/sorties';
 import { SortiesEventsTable as SortieEventsTable } from '../database/tables/sorties-events';
 import { ISortie, ISortieEvent } from './models/common';
-import { getPageContent, createHash } from './utils';
-import { SortieEvent } from '../business-models/sortie-event';
+import { createHash, getPageContent } from './utils';
 
 
-export class TawPlayerStatsScraper implements IScraper {
-  id = 'taw-player-stats';
+export class CboxPlayerStatsScraper implements IScraper {
+  id = 'cbox-player-stats';
   sortiesTable: SortiesTable;
   sortieEventsTable: SortieEventsTable;
   try: number = 0;
-  maxTry: number = 6;
+  maxTry: number = 3;
 
   constructor(db: Db) {
     this.sortiesTable = new SortiesTable(db);
@@ -25,7 +25,7 @@ export class TawPlayerStatsScraper implements IScraper {
     let done = false;
     do {
       try {
-        console.log('Collecting sorties from TAW');
+        console.log('Collecting sorties from Cbox');
         sorties = await this.collect(squadronName);
         done = true;
       } catch (error) {
@@ -48,18 +48,19 @@ export class TawPlayerStatsScraper implements IScraper {
     }
 
     await this.store(sorties);
-    console.log('TAW sorties collected');
+    console.log('Cbox sorties collected');
     return;
   }
 
   private collect = async (squadronName: string): Promise<ISortie[]> => {
-    const data = await getPageContent(`https://taw.stg2.de/squad_stats.php?name=${squadronName}`);
+    const data = await getPageContent(`https://combatbox.net/en/pilots/10/${squadronName}/`);
     const playerPages = this.getSquadronPlayersPagesUrls(data);
     let sorties: ISortie[] = [];
     console.log(`Loading sorties for ${playerPages.length} players`);
     for (let i = 0; i < playerPages.length; i++) {                                                                     // playerPages.length
-      console.log(`Getting sorties for: ${playerPages[i]}`);
-      const playersSorties = await this.getPlayersSorties(`https://taw.stg2.de/${playerPages[i]}`);
+      const sortiesPageUrl = playerPages[i].replace('en/pilot', 'en/sorties');
+      console.log(`Getting sorties for: ${sortiesPageUrl}`);
+      const playersSorties = await this.getPlayersSorties(`https://combatbox.net${sortiesPageUrl}`);
       sorties = sorties.concat(playersSorties);
     }
     return sorties;
@@ -76,7 +77,7 @@ export class TawPlayerStatsScraper implements IScraper {
           aircraft: sortieInfo.aircraft,
           landedat: sortieInfo.landedAt || '',
           playername: sortieInfo.playerName,
-          servercode: 'taw',
+          servercode: 'cbox',
           sortiedate: sortieInfo.sortieDate,
           takeoffat: sortieInfo.takeOffAt,
         })
@@ -107,10 +108,9 @@ export class TawPlayerStatsScraper implements IScraper {
   private getSquadronPlayersPagesUrls = (data: string): string[] => {
     const pagesUrl: string[] = [];
     const $ = cheerio.load(data);
-    const selector = '#page-wrapper > div > div:nth-child(3) > div.col-lg-8.col-md-8 > div:nth-child(2) > table > tbody > tr';
+    const selector = '#player > div > div.content_table .row';
     $(selector).each((index, el) => {
-      if (index === 0) return;    // The first line is the table header
-      const url = $(el).attr('data-href');
+      const url = $(el).attr('href');
       if (!url) throw new Error('Cannot parse sortie player page URL');
       pagesUrl.push(url);
     });
@@ -121,9 +121,9 @@ export class TawPlayerStatsScraper implements IScraper {
     const data = await getPageContent(url);
     const playerSortiesUrls: string[] = [];
     const $ = cheerio.load(data);
-    const sortiesSelector = '#page-wrapper > div:nth-child(8) > div.col-lg-8.col-md-8 > div.table-responsive > table > tbody > tr';
+    const sortiesSelector = '#content > div > div.content_table > a';
     $(sortiesSelector).each((index, el) => {
-      const sortieUrl = $(el).find('td > a').attr('href');
+      const sortieUrl = $(el).attr('href');
       if (!sortieUrl) throw new Error('Cannot parse sortie URL');
       playerSortiesUrls.push(sortieUrl);
     });
@@ -132,7 +132,7 @@ export class TawPlayerStatsScraper implements IScraper {
     const playerSortiesDetails: ISortie[] = [];
     for (let i = 0; i < playerSortiesUrls.length; i++) {
       const sortieUrl = playerSortiesUrls[i];
-      const sortieDetails = await this.getSortieDetails(`https://taw.stg2.de/${sortieUrl}`);
+      const sortieDetails = await this.getSortieDetails(`https://combatbox.net${sortieUrl}`);
       playerSortiesDetails.push(sortieDetails);
     }
     return playerSortiesDetails;
@@ -141,73 +141,83 @@ export class TawPlayerStatsScraper implements IScraper {
   private getSortieDetails = async (url: string): Promise<ISortie> => {
     const data = await getPageContent(url);
     const $ = cheerio.load(data);
-    const selector = '#page-wrapper > div:nth-child(1) > div:nth-child(2) > div > h4';
-    const flightInfoDirty = $(selector).html();
-    const aircraft = flightInfoDirty?.match('Aircraft: (.*?)\<br\>')?.[1] || 'not parsed';
-    const takeOffAt = flightInfoDirty?.match('Took off from: (.*?)\<br\>')?.[1] || 'not parsed';
-    const landedAt = flightInfoDirty?.match('Landed at: (.*?)\<br\>')?.[1];
-    const ditched = flightInfoDirty?.match('DITCHED in sector: (.*?)\<br\>')?.[1];
 
-    const detailsSelector = '#page-wrapper > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr';
-    const events: ISortieEvent[] = [];
-    $(detailsSelector).each((index, el) => {
-      if (index === 0) return;    // The first line is the table header
-      const cols = $(el).find('td');
-      const date = $(cols[0]).text().trim();
-      const formattedDate = this.formatDate(date);
-      const object = $(cols[3]).text().trim();
-      const type = $(cols[4]).text().trim();
-      const entry: ISortieEvent = {
-        sortieHash: 0,
-        date: formattedDate,
-        event: this.transformToCommonEvent($(cols[1]).text().trim()),
-        target: (type.toLowerCase() === 'plane') ? object : type,
-        enemyPlayer: $(cols[5]).text().trim(),
-      }
-      if (entry.event !== SortieEvent.Other) {
-        events.push(entry);
-      }
-    });
-    const sortieDate = events[0].date;
+    const aircraftSelector = '#sortie > div > div.sortie_general > div.general_right > div';
+    const aircraft = $(aircraftSelector).text().trim().replace('Aircraft: ', '');
 
-    const playerNameSelector = '#page-wrapper > div:nth-child(1) > div:nth-child(1) > div > h1 > a';
-    const playerName = $(playerNameSelector).text().trim();
+    const sortieDateSelector = '#sortie > div > div.sortie_title';
+    const sortieDate = this.formatDate($(sortieDateSelector).text().trim().replace('Sortie: ', ''));
 
-    const hash = createHash(`${sortieDate}${playerName}taw`);
+    const playerNameSelector = '#sortie > div > div.pilot_nickname';
+    const playerName = $(playerNameSelector).text().trim().replace('pilot: ', '');
+
+    const logUrl = url.replace('sortie/', 'sortie/log/');
+    const events: ISortieEvent[] = await this.getSortieEvents(logUrl);
+
+    const hash = createHash(`${sortieDate}${playerName}cbox`);
     events.forEach(event => event.sortieHash = hash);
 
-    const sortiesInfo: ISortie = ({
+    const sortiesInfo: Partial<ISortie> = ({
       hash,
       playerName,
       sortieDate,
       aircraft,
-      takeOffAt,
-      landedAt,
-      ditched,
+      takeOffAt: 'unknown',
+      landedAt: 'unknown',
+      ditched: 'unknown',
       events,
     });
-    return sortiesInfo;
+
+    return sortiesInfo as ISortie;
+  }
+
+  private getSortieEvents = async (logUrl: string): Promise<ISortieEvent[]> => {
+    const data = await getPageContent(logUrl);
+    const $ = cheerio.load(data);
+
+    const baseDateSelector = '#sortie > div > div.sortie_title';
+    const baseDateMatches = $(baseDateSelector).text().trim().match('Sortie: (.*) -.*');
+    const baseDate = baseDateMatches?.[1];
+    if (!baseDate) {
+      throw new Error('Couldn\'t parse date for sortie at ' + logUrl);
+    }
+    const events: ISortieEvent[] = [];
+    const logEntrySelector = '#sortie_log > div';
+    $(logEntrySelector).each((index, el) => {
+      const cols = $(el).find('div');
+      const entry: ISortieEvent = {
+        sortieHash: 0,
+        date: this.formatDate(`${baseDate} - ${$(cols[1]).text().trim()}`),
+        event: this.transformToCommonEvent($(cols[2]).text().trim()),
+        target: $(cols[4]).text().trim(),
+        enemyPlayer: $(cols[3]).text().trim(),
+      };
+      if (entry.event !== SortieEvent.Other) {
+        events.push(entry);
+      }
+    });
+    return events;
+  }
+
+  private formatDate(date: string) {
+    const match = date.match('(\\d*)\\.(\\d*)\\.(\\d*) - (.*)');
+    if (!match)
+      throw new Error('can\'t parse time string: ' + date);
+    const formattedDate = `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
+    return formattedDate;
   }
 
   private transformToCommonEvent = (event: string): SortieEvent => {
     switch (event) {
-      case 'TOOK OFF': return SortieEvent.TakeOff;
-      case 'WAS SHOT DOWN': return SortieEvent.WasShotdown;
-      case 'END': return SortieEvent.End;
-      case 'SHOT DOWN': return SortieEvent.ShotdownEnemy;
+      case 'takeoff': return SortieEvent.TakeOff;
+      case 'WAS SHOTDOWN': return SortieEvent.WasShotdown;
+      case 'end': return SortieEvent.End;
+      case 'SHOTDOWN': return SortieEvent.ShotdownEnemy;
       case 'DESTROYED': return SortieEvent.DestroyedGroundTarget;
       default: return SortieEvent.Other;
     }
   }
-
-  private formatDate(date: string) {
-    const match = date.match('(\\d*)\\.(\\d*)\\.(\\d*) (.*)');
-    if (!match)
-      throw new Error('can\'t parse time string');
-    const formattedDate = `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
-    return formattedDate;
-  }
 }
 
-// new TawPlayerStatsScraper().run('=GEMINI=').then(data => console.log(JSON.stringify(data, null, 2)));
+new CboxPlayerStatsScraper({} as Db).run('=GEMINI=').then(() => console.log('== done =='));
 // npm run test-scraper

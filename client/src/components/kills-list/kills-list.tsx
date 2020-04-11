@@ -2,7 +2,7 @@ import React from 'react';
 import { useLatestKills } from '../../api/use-latest-kills';
 import './style.css';
 import { getMonthNameByIndex } from '../../utilities';
-import { IPlayerKillInfoDto } from 'gemini-statistics-api/build/dtos/player-kill-info.dto';
+import { ISortieEventInfoDto } from 'gemini-statistics-api/build/dtos/sortie-event-info.dto';
 import { useLatestDeaths } from '../../api/use-latest-deaths';
 
 const AimIcon = () => (
@@ -23,16 +23,16 @@ const formatDate = (dateString: string): string => {
   return `${day} ${month} ${date.toLocaleTimeString()}`
 }
 
-const KillInfo = ({ data, color }: { data: IPlayerKillInfoDto; color: string }) => (
+const KillInfo = ({ data, color }: { data: ISortieEventInfoDto; color: string }) => (
   <tr>
-    <td>{formatDate(data.date)}</td>
+    <td>{formatDate(data.date)}<br /><small>({data.serverCode})</small></td>
     <td>{data.playerName}<br />({data.ownAircraft})</td>
     <td><span className="aim-icon" style={{fill: color}}><AimIcon /></span></td>
     <td>{data.enemyPlayer}<br />({data.enemyAircraft})</td>
   </tr>
 )
 
-export const KillsList: React.FunctionComponent<{ kills: IPlayerKillInfoDto[], color: string }> = ({ kills, color }) => {
+export const KillsList: React.FunctionComponent<{ kills: ISortieEventInfoDto[], color: string }> = ({ kills, color }) => {
   return (
     <div className="kills-list">
       <table>

@@ -1,5 +1,5 @@
 
-export interface IPlayerKillInfo {
+export interface ISortieEventInfo {
   date: string;
   playerName: string;
   serverCode: string;

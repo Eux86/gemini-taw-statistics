@@ -1,3 +1,5 @@
+import { SortieEvent } from "../../business-models/sortie-event";
+
 export interface ISortie {
   hash: number;
   playerName: string;
@@ -12,8 +14,7 @@ export interface ISortie {
 export interface ISortieEvent {
   sortieHash: number;
   date: string;
-  event: string;
-  object?: string;
-  type: string;
+  event: SortieEvent;
+  target?: string;
   enemyPlayer?: string;
 }

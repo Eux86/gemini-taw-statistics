@@ -42,7 +42,7 @@ export class Db {
           console.log('ERROR IN QUERY: ' + queryString);
           return reject(err);
         }
-        console.log('EXECUTED QUERY: ' + queryString);
+        // console.log('EXECUTED QUERY: ' + queryString);
         return resolve(res);
       });
     })
