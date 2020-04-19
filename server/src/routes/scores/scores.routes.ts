@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Route } from '../../utils';
-import { getScores, getCsv, getLatestScores, getAvailableMonths, getAvailableServers } from './scores.handlers';
-import { IServices } from '../../business-models/i-services';
+import { getScores, getCsv, getLatestScores, getAvailableMonths, getAvailableServers, getKillsByDate, getDeathsByDate, getGroundKillsByDate } from './scores.handlers';
+import { IServices } from '../../models/i-services';
 
 export default [
   {
@@ -38,5 +38,26 @@ export default [
     },
     method: 'get',
     path: '/api/scores/availableServers',
+  },
+  {
+    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
+      await getKillsByDate(services)(req, res, next);
+    },
+    method: 'get',
+    path: '/api/scores/killsByDate',
+  },
+  {
+    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
+      await getDeathsByDate(services)(req, res, next);
+    },
+    method: 'get',
+    path: '/api/scores/deathsByDate',
+  },
+  {
+    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
+      await getGroundKillsByDate(services)(req, res, next);
+    },
+    method: 'get',
+    path: '/api/scores/groundKillsByDate',
   },
 ] as Route[];

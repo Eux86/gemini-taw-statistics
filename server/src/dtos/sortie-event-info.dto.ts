@@ -1,4 +1,3 @@
-
 export interface ISortieEventInfoDto {
   date: string;
   playerName: string;

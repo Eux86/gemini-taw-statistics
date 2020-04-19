@@ -13,6 +13,8 @@ export interface ISortiesTable {
 }
 
 export class SortiesTable extends Table<ISortiesTable> {
+  public static tableName = 'sorties';
+
   constructor(db: Db) {
     super(db, 'sorties');
   }

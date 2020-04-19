@@ -1,5 +1,5 @@
 import cheerio from 'cheerio';
-import { IPlayerScores } from '../business-models/player-scores';
+import { IPlayerScores } from '../models/player-scores';
 import { IScraper } from '../collector';
 import { getPageContent } from './utils';
 

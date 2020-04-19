@@ -2,7 +2,7 @@ import { Db } from "./database/db";
 import { MigrationsHandler } from "./database/migrations-handler";
 import { ScoresTable, IScoresTable } from "./database/tables/scores";
 import { UpdatesLogsTable, IUpdatesLogsTable } from "./database/tables/updates-log";
-import { IPlayerScores } from "./business-models/player-scores";
+import { IPlayerScores } from "./models/player-scores";
 import { TawScraper } from './scrapers/taw-scraper';
 import { CboxScraper } from './scrapers/cbox-scraper';
 import { QueryResult } from "pg";

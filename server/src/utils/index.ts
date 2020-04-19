@@ -2,7 +2,7 @@ import {
   RequestHandler,
   Router,
 } from 'express';
-import { IServices } from '../business-models/i-services';
+import { IServices } from '../models/i-services';
 
 type Wrapper = ((router: Router) => void);
 

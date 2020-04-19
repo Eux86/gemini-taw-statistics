@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
-import { IServices } from '../../business-models/i-services';
-import { transformIPlayerScoresToDto, transformIPlayerKillInfoToDto } from '../../transformers';
-import { IPlayerScores } from '../../business-models/player-scores';
+import { IServices } from '../../models/i-services';
+import { transformIPlayerScoresToDto, transformIPlayerKillInfoToDto, transformIScoresByDateToDto } from '../../transformers';
+import { IPlayerScores } from '../../models/player-scores';
 
 export const getScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
   const {
@@ -20,6 +20,48 @@ export const getLatestScores = (services: IServices): RequestHandler => async (_
   const playersScoresDto = playersScores.map(transformIPlayerScoresToDto);
   response.send(JSON.stringify(playersScoresDto, null, 2));
 };
+
+export const getKillsByDate = (services: IServices): RequestHandler => async (request: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  console.log('params', request.query);
+  const killsScores = await scores.getKillsScores({
+    startDate: request.query?.startDate,
+    endDate: request.query?.endDate,
+    playerName: request.query?.playerName,
+  });
+  const killsScoresDto = killsScores.map(transformIScoresByDateToDto);
+  response.send(JSON.stringify(killsScoresDto, null, 2));
+}
+
+export const getDeathsByDate = (services: IServices): RequestHandler => async (request: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  console.log('params', request.query);
+  const killsScores = await scores.getDeathsScores({
+    startDate: request.query?.startDate,
+    endDate: request.query?.endDate,
+    playerName: request.query?.playerName,
+  });
+  const killsScoresDto = killsScores.map(transformIScoresByDateToDto);
+  response.send(JSON.stringify(killsScoresDto, null, 2));
+}
+
+export const getGroundKillsByDate = (services: IServices): RequestHandler => async (request: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  console.log('params', request.query);
+  const killsScores = await scores.getGroundKillsScores({
+    startDate: request.query?.startDate,
+    endDate: request.query?.endDate,
+    playerName: request.query?.playerName,
+  });
+  const killsScoresDto = killsScores.map(transformIScoresByDateToDto);
+  response.send(JSON.stringify(killsScoresDto, null, 2));
+}
 
 export const getCsv = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
   const {

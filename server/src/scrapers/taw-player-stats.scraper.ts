@@ -5,7 +5,7 @@ import { SortiesTable } from '../database/tables/sorties';
 import { SortiesEventsTable as SortieEventsTable } from '../database/tables/sorties-events';
 import { ISortie, ISortieEvent } from './models/common';
 import { getPageContent, createHash } from './utils';
-import { SortieEvent } from '../business-models/sortie-event';
+import { SortieEvent } from '../models/sortie-event';
 
 
 export class TawPlayerStatsScraper implements IScraper {

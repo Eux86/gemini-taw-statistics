@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { IServices } from '../../business-models/i-services';
+import { IServices } from '../../models/i-services';
 import { Route } from '../../utils';
 import { getLatestDeaths, getLatestKills } from './sorties.handlers';
 

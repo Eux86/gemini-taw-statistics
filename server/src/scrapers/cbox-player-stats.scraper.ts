@@ -1,5 +1,5 @@
 import cheerio from 'cheerio';
-import { SortieEvent } from '../business-models/sortie-event';
+import { SortieEvent } from '../models/sortie-event';
 import { IScraper } from '../collector';
 import { Db } from '../database/db';
 import { SortiesTable } from '../database/tables/sorties';

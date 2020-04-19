@@ -1,4 +1,4 @@
-import { SortieEvent } from "../../business-models/sortie-event";
+import { SortieEvent } from "../../models/sortie-event";
 
 export interface ISortie {
   hash: number;

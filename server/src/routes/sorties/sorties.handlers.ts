@@ -1,4 +1,4 @@
-import { IServices } from '../../business-models/i-services';
+import { IServices } from '../../models/i-services';
 import { transformIPlayerKillInfoToDto } from '../../transformers';
 import { Request, RequestHandler, Response } from 'express';
 
