@@ -29,5 +29,6 @@ export const applyRoutes = (routes: Route[], router: Router, services: IServices
   routes.forEach((route: Route) => {
     const { method, path, handler } = route;
     router[method](path, handler(services));
+    console.log(`Route: ${method}: ${path}`);
   });
 };
