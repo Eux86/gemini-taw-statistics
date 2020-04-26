@@ -219,5 +219,5 @@ export class CboxPlayerStatsScraper implements IScraper {
   }
 }
 
-new CboxPlayerStatsScraper({} as Db).run('=GEMINI=').then(() => console.log('== done =='));
+// new CboxPlayerStatsScraper({} as Db).run('=GEMINI=').then(() => console.log('== done =='));
 // npm run test-scraper
