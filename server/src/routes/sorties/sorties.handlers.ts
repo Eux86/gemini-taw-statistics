@@ -19,3 +19,11 @@ export const getLatestDeaths = (services: IServices): RequestHandler => async (_
   const dto = deaths.map(transformIPlayerKillInfoToDto);
   response.send(JSON.stringify(dto));
 };
+
+export const getAvailableMonths = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  const months = await scores.getAvailableMonths();
+  response.send(JSON.stringify(months));
+};

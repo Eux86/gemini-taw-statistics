@@ -1,69 +1,52 @@
 import React, { FunctionComponent } from 'react';
 import Chart from 'chart.js';
-import { useScores } from '../../api/use-scores';
+import { useScores } from '../../hooks/api/use-scores';
+import { SortieEvent } from 'gemini-statistics-api/build/enums/sortie-event';
+import { IScoreByDateDto } from 'gemini-statistics-api/build/dtos/scores-by-date.dto';
+import { FiltersContext } from '../../data/filters-context';
 
 interface IProps {
 }
 
-interface IDeltaBuilderEntry {
-  prevDate: string;
-  prevValue: number;
-  array: { [key: string]: number };
-}
-
-const deltaBuilder = (valuesObject: { [key: string]: number }): IDeltaBuilderEntry => {
-  return Object.keys(valuesObject)?.reduce<IDeltaBuilderEntry>((prev, current) => {
-    const currentValue = valuesObject[current]
-    if (!prev.prevDate) {
-      return {
-        prevDate: current,
-        prevValue: currentValue,
-        array: { [current]: 0 },
-      }
-    }
-    return {
-      prevDate: current,
-      prevValue: currentValue,
-      array: { ...prev.array, [current]: Math.max(currentValue - prev.prevValue, 0) },
-    }
-  }, {} as IDeltaBuilderEntry);
-}
-
-
-export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
+export const PerformanceByMonth: FunctionComponent<IProps> = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [, setChart] = React.useState<Chart | undefined>(undefined);
+  const { state } = React.useContext(FiltersContext);
+  const [timeline, setTimeline] = React.useState<Date[]>();
 
   const [data] = useScores();
-  const [totalAirKillsByDate, setTotalAirKillsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);
-  const [totalGroundKillsByDate, setTotalGroundKillsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);
-  const [totalDeathsByDate, setTotalDeathsByDate] = React.useState<{ [key: string]: number } | undefined>(undefined);
+  const [totalAirKillsByDate, setTotalAirKillsByDate] = React.useState<IScoreByDateDto[] | undefined>(undefined);
+  const [totalGroundKillsByDate, setTotalGroundKillsByDate] = React.useState<IScoreByDateDto[] | undefined>(undefined);
+  const [totalDeathsByDate, setTotalDeathsByDate] = React.useState<IScoreByDateDto[] | undefined>(undefined);
 
+  // Get Scores by event
   React.useEffect(() => {
     if (!data) return;
-    const totalAirKillsByDate = data.reduce((prev, current) => {
-      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.airKills;
-      return prev;
-    }, {} as { [key: string]: number })
-    const airKillsDeltasByDate = deltaBuilder(totalAirKillsByDate);
-    setTotalAirKillsByDate(airKillsDeltasByDate.array);
-
-    const totalGroundKillsByDate = data?.reduce((prev, current) => {
-      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.groundKills;
-      return prev;
-    }, {} as { [key: string]: number })
-    const groundKillsDeltasByDate = deltaBuilder(totalGroundKillsByDate);
-    setTotalGroundKillsByDate(groundKillsDeltasByDate.array);
-
-    const totalDeathsByDate = data?.reduce((prev, current) => {
-      prev[current.updateDate] = (prev[current.updateDate] || 0) + +current.deaths;
-      return prev;
-    }, {} as { [key: string]: number })
-    const deathsDeltasByDate = deltaBuilder(totalDeathsByDate);
-    setTotalDeathsByDate(deathsDeltasByDate.array);
+    const totalAirKillsByDate = data.filter((score) => score.eventType === SortieEvent.ShotdownEnemy);
+    const totalGroundKillsByDate = data.filter((score) => score.eventType === SortieEvent.DestroyedGroundTarget);
+    const totalDeathsByDate = data.filter((score) => score.eventType === SortieEvent.WasShotdown);
+    setTotalAirKillsByDate(totalAirKillsByDate);
+    setTotalGroundKillsByDate(totalGroundKillsByDate);
+    setTotalDeathsByDate(totalDeathsByDate);
   }, [data]);
-  console.log(totalAirKillsByDate);
 
+  // Generate all dates for selected period
+  React.useEffect(() => {
+    if (!state.from || !state.to) {
+      return;
+    }
+    let currentDate = state.from;
+    const dates: Date[] = [];
+    let counter = 0;
+    while (currentDate<=state.to && counter < 90) {
+      dates.push(currentDate);
+      const nextDate = new Date(currentDate);
+      nextDate.setDate(currentDate.getDate() + 1);
+      currentDate = nextDate;
+      counter++;
+    }
+    setTimeline(dates);
+  }, [state]);
 
   React.useEffect(() => {
     if (!canvasRef?.current) {
@@ -77,23 +60,23 @@ export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
         maintainAspectRatio: false
       },
       data: {
-        labels: Object.keys(totalAirKillsByDate || {}).map(formatDate),
+        labels: timeline?.map(formatDate),
         datasets: [
           {
             label: 'Total Air Kills',
-            data: Object.values(totalAirKillsByDate || {}),
+            data: totalAirKillsByDate && spreadScoresOnTimeline(totalAirKillsByDate),
             borderColor: '#54d400',
             backgroundColor: '#54d400',
           },
           {
             label: 'Total Ground Kills',
-            data: Object.values(totalGroundKillsByDate || {}),
+            data: totalGroundKillsByDate && spreadScoresOnTimeline(totalGroundKillsByDate),
             borderColor: '#f09b00',
             backgroundColor: '#f09b00',
           },
           {
             label: 'Total Deaths',
-            data: Object.values(totalDeathsByDate || {}),
+            data: totalDeathsByDate && spreadScoresOnTimeline(totalDeathsByDate),
             borderColor: '#ca0000',
             backgroundColor: '#ca0000',
           }
@@ -106,10 +89,20 @@ export const PerformanceByMonth: FunctionComponent<IProps> = ({ }) => {
     })
   }, [canvasRef, totalAirKillsByDate, totalGroundKillsByDate, totalDeathsByDate]);
 
-  const formatDate = (dateString: string) => {
-    const month = new Date(dateString).getUTCMonth() + 1;
-    const day = new Date(dateString).getDate();
+  const formatDate = (date: Date) => {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
     return `${day > 9 ? day : '0' + day}/${month > 9 ? month : '0' + month}`;
+  }
+
+  const isSameDay = (date1: Date, date2: Date) => {
+    return date1.getDate() === date2.getDate()
+      && date1.getMonth() === date2.getMonth()
+      && date1.getFullYear() === date2.getFullYear();
+  }
+
+  const spreadScoresOnTimeline = (scores: IScoreByDateDto[]) => {
+    return timeline?.map(currentDate => scores?.find(score => isSameDay(new Date(score.date),currentDate))?.score);
   }
 
   return (

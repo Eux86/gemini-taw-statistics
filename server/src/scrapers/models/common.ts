@@ -1,9 +1,9 @@
-import { SortieEvent } from "../../models/sortie-event";
+import { SortieEvent } from "../../enums/sortie-event";
 
 export interface ISortie {
   hash: number;
   playerName: string;
-  sortieDate: string;
+  sortieDateString: string;
   aircraft: string;
   takeOffAt: string;
   landedAt?: string;

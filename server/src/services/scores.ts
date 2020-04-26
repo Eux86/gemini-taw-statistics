@@ -1,16 +1,18 @@
 import { IPlayerScores } from "../models/player-scores";
 import { ScoresTable, IScoresTable } from "../database/tables/scores";
 import { SortiesEventsTable, ISortieEventsTable } from "../database/tables/sorties-events";
-import { SortieEvent } from "../models/sortie-event";
+import { SortieEvent } from "../enums/sortie-event";
 import { IScoresFilter } from "../models/i-scores-filter";
 import { ISortiesTable, SortiesTable } from "../database/tables/sorties";
 import { IScoreByDate } from "../models/i-score-by-date";
 
 export class ScoresService {
   private scoresTable: ScoresTable;
+  private sortiesTable: SortiesTable;
 
-  constructor(scoresTable: ScoresTable) {
+  constructor(scoresTable: ScoresTable, sortiesTable: SortiesTable) {
     this.scoresTable = scoresTable;
+    this.sortiesTable = sortiesTable;
   }
 
   getAllScores = async (): Promise<IPlayerScores[]> => {
@@ -56,18 +58,6 @@ export class ScoresService {
     return playerScores;
   }
 
-  getKillsScores = async (filter: IScoresFilter): Promise<IScoreByDate[]> => {
-    return this.getScoresByDateForEvent(SortieEvent.ShotdownEnemy, filter);
-  }
-
-  getDeathsScores = async (filter: IScoresFilter): Promise<IScoreByDate[]> => {
-    return this.getScoresByDateForEvent(SortieEvent.WasShotdown, filter);
-  }
-
-  getGroundKillsScores = async (filter: IScoresFilter): Promise<IScoreByDate[]> => {
-    return this.getScoresByDateForEvent(SortieEvent.DestroyedGroundTarget, filter);
-  }
-
   getLatestScores = async (): Promise<IPlayerScores[]> => {
     const subQuery = this.scoresTable.select('updatedate').orderBy('updatedate', true).limit(1).queryString;
     const result = await this.scoresTable.select().where('updatedate', `(${subQuery})`).execute();
@@ -87,8 +77,8 @@ export class ScoresService {
   }
 
   getAvailableMonths = async (): Promise<string[]> => {
-    const results = this.scoresTable.selectDistinct('updatedate').orderBy('updatedate', true).execute();
-    const uniqueDates = (await results).rows.map(row => this.toMonthYear(row.updatedate)).filter(this.unique);
+    const results = this.sortiesTable.selectDistinct('sortiedate').orderBy('sortiedate', true).execute();
+    const uniqueDates = (await results).rows.map(row => this.toMonthYear(new Date(row.sortiedate))).filter(this.unique);
     return uniqueDates;
   }
 
@@ -109,26 +99,31 @@ export class ScoresService {
     return `${month}-${year}`;
   }
 
-  private getScoresByDateForEvent = async (eventType: SortieEvent, filter: IScoresFilter): Promise<IScoreByDate[]> => {
+  public getScoresFiltered = async (filter: IScoresFilter): Promise<IScoreByDate[]> => {
     const dateField: keyof ISortieEventsTable = 'date';
     const eventField: keyof ISortieEventsTable = 'event';
+    const serverCodeField: keyof ISortiesTable = 'servercode';
     const sortieHashField: keyof ISortieEventsTable = 'sortieHash';
     const hashField: keyof ISortiesTable = 'hash';
     const filterString = this.getFilterString(filter);
     const queryString = `
-      select SUBSTRING(${dateField}, 0, 11) as date, count(*) as score from ${SortiesEventsTable.tableName}
+      select SUBSTRING(${dateField}, 0, 11) as date, count(*) as score, ${eventField} as event
+      from ${SortiesEventsTable.tableName}
       inner join ${SortiesTable.tableName} on ${sortieHashField} = ${hashField}
-      where ${eventField} = '${eventType}' ${filterString ? ` and (${filterString})` : ''} 
-      group by SUBSTRING(${dateField}, 0, 11)
+      ${filterString ? ` where (${filterString})` : ''} 
+      group by SUBSTRING(${dateField}, 0, 11), ${eventField}
     `;
     const killsCount = await this.scoresTable.db.query<{
       date: string;
       score: number;
+      servercode: string;
+      event: SortieEvent;
     }>(queryString);
 
     return killsCount.rows.map(entry => ({
       date: entry.date,
       score: entry.score,
+      eventType: entry.event,
     }));
   }
 
@@ -137,18 +132,30 @@ export class ScoresService {
       endDate,
       playerName,
       startDate,
+      serverCode,
+      eventType,
     } = filter;
     const dateField: keyof ISortieEventsTable = 'date';
     const playerNameField: keyof ISortiesTable = 'playername';
+    const serverCodeField: keyof ISortiesTable = 'servercode';
+    const eventField: keyof ISortieEventsTable = 'event';
     const startDateFilter = `${dateField} >= '${startDate}'`;
     const endDateFilter = `${dateField} <= '${endDate}'`;
+    const eventTypeFilter = `${eventField} = '${eventType}'`;
     const playerNameFilter = `${playerNameField} = '${playerName}'`;
+    const serverCodeFilter = `${serverCodeField} = '${serverCode}'`;
     let filterString = `${startDate ? startDateFilter : ''}`;
+    if (eventType) {
+      filterString = `${filterString !== '' ? `${filterString} AND ` : ''} ${eventTypeFilter}`;
+    }
     if (endDate) {
       filterString = `${filterString !== '' ? `${filterString} AND ` : ''} ${endDateFilter}`;
     }
     if (playerName) {
       filterString = `${filterString ? `${filterString} AND ` : ''} ${playerNameFilter}`;
+    }
+    if (serverCode) {
+      filterString = `${filterString ? `${filterString} AND ` : ''} ${serverCodeFilter}`;
     }
     if (filterString.trim() !== '') {
       return filterString;

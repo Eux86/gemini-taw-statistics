@@ -12,14 +12,13 @@ import { ScoresTable } from './database/tables/scores';
 import { SortiesService } from './services/sorties';
 import { SortiesTable } from './database/tables/sorties';
 
-
 // ############ INITIALIZE STACK #####################
 const db = new Db();
 db.connect();
 const scoresTable = new ScoresTable(db);
 const sortiesTable = new SortiesTable(db);
 const services: IServices = {
-  scores: new ScoresService(scoresTable),
+  scores: new ScoresService(scoresTable, sortiesTable),
   sorties: new SortiesService(sortiesTable),
 }
 // ####################################################

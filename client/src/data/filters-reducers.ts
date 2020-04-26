@@ -1,12 +1,17 @@
 import { IFiltersStore } from './filters-context';
 import { FiltersActions } from './filters-actions';
 
-export const filtersReducer = (state: IFiltersStore, action: FiltersActions) => {
+export const filtersReducer = (state: IFiltersStore, action: FiltersActions): IFiltersStore => {
   switch (action.type) {
-    case 'change-month-action':
+    case 'change-date-from':
       return {
         ...state,
-        month: action.payload.month,
+        from: action.payload.dateFrom,
+      }
+    case 'change-date-to':
+      return {
+        ...state,
+        to: action.payload.dateTo,
       }
     case 'change-serverCode-action':
       return {

@@ -1,14 +1,20 @@
 import React, { createContext, Dispatch, useReducer } from 'react';
 import { FiltersActions } from './filters-actions';
 import { filtersReducer } from './filters-reducers';
+import { getStartEndMonthByDate } from '../utils/dates';
 
 export interface IFiltersStore {
-  month?: string;
+  from?: Date,
+  to?: Date,
   serverCode?: string;
 }
 
+const date = new Date();
+const {firstDate, lastDate} = getStartEndMonthByDate(date);
+
 const initialState: IFiltersStore = {
-  month: '',
+  from: firstDate,
+  to: lastDate,
   serverCode: undefined,
 }
 

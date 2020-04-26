@@ -34,4 +34,5 @@ export const transformIPlayerKillInfoToDto = (info: ISortieEventInfo): ISortieEv
 export const transformIScoresByDateToDto = (data: IScoreByDate): IScoreByDateDto => ({
   date: data.date,
   score: data.score,
+  eventType: data.eventType,
 })

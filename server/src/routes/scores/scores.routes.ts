@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import { Route } from '../../utils';
-import { getScores, getCsv, getLatestScores, getAvailableMonths, getAvailableServers, getKillsByDate, getDeathsByDate, getGroundKillsByDate } from './scores.handlers';
+import { NextFunction, Request, Response } from 'express';
 import { IServices } from '../../models/i-services';
+import { Route } from '../../utils';
+import { getAvailableMonths, getAvailableServers, getCsv, getLatestScores, getScoresFiltered } from './scores.handlers';
 
 export default [
   {
     handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getScores(services)(req, res, next);
+      await getScoresFiltered(services)(req, res, next);
     },
     method: 'get',
     path: '/api/scores',
@@ -38,26 +38,5 @@ export default [
     },
     method: 'get',
     path: '/api/scores/availableServers',
-  },
-  {
-    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getKillsByDate(services)(req, res, next);
-    },
-    method: 'get',
-    path: '/api/scores/killsByDate',
-  },
-  {
-    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getDeathsByDate(services)(req, res, next);
-    },
-    method: 'get',
-    path: '/api/scores/deathsByDate',
-  },
-  {
-    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getGroundKillsByDate(services)(req, res, next);
-    },
-    method: 'get',
-    path: '/api/scores/groundKillsByDate',
   },
 ] as Route[];

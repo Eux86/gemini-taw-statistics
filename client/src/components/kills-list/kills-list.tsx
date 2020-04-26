@@ -1,9 +1,7 @@
-import React from 'react';
-import { useLatestKills } from '../../api/use-latest-kills';
-import './style.css';
-import { getMonthNameByIndex } from '../../utilities';
 import { ISortieEventInfoDto } from 'gemini-statistics-api/build/dtos/sortie-event-info.dto';
-import { useLatestDeaths } from '../../api/use-latest-deaths';
+import React from 'react';
+import { getMonthNameByIndex } from '../../utilities';
+import './style.css';
 
 const AimIcon = () => (
   <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 502 502" width="30px">
