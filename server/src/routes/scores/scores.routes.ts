@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { IServices } from '../../models/i-services';
 import { Route } from '../../utils';
-import { getScores, getCsv, getLatestScores, getAvailableMonths, getAvailableServers, getLatestKills, getLatestDeaths } from './api.handler';
-import { IServices } from '../../business-models/i-services';
+import { getAvailableMonths, getAvailableServers, getCsv, getLatestScores, getScoresFiltered } from './scores.handlers';
 
 export default [
   {
     handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getScores(services)(req, res, next);
+      await getScoresFiltered(services)(req, res, next);
     },
     method: 'get',
     path: '/api/scores',
@@ -38,20 +38,5 @@ export default [
     },
     method: 'get',
     path: '/api/scores/availableServers',
-  },
-  // SHOULD GO INTO ANOTHER ROUTES FILE
-  {
-    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getLatestKills(services)(req, res, next);
-    },
-    method: 'get',
-    path: '/api/sorties/latestKills',
-  },
-  {
-    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getLatestDeaths(services)(req, res, next);
-    },
-    method: 'get',
-    path: '/api/sorties/latestDeaths',
   },
 ] as Route[];

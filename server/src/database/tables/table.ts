@@ -33,7 +33,7 @@ export class Table<T> {
     return this.db.query(`UPDATE ${this.tableName} SET ${updateString} WHERE ${whereCondition}`);
   }
 
-  select = <J = {}>(...fields: Array<keyof (T & J)>) => {
+  select = <J = {}>(...fields: Array<keyof ((T & J))>) => {
     const queryString = `SELECT ${fields.join(',') || '*'} FROM ${this.tableName} `;
     return {
       where: this.where(queryString, this),

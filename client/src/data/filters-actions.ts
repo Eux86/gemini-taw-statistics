@@ -3,10 +3,17 @@ interface IAction {
   type: string;
 }
 
-interface IChangeMonthAction extends IAction {
-  type: 'change-month-action',
+interface IChangeDateFromAction extends IAction {
+  type: 'change-date-from',
   payload: {
-    month?: string;
+    dateFrom?: Date;
+  }
+}
+
+interface IChangeDateToAction extends IAction {
+  type: 'change-date-to',
+  payload: {
+    dateTo?: Date;
   }
 }
 
@@ -17,10 +24,17 @@ interface IChangeServerCodeAction extends IAction {
   }
 }
 
-export const changeMonthAction = (month?: string): IChangeMonthAction => ({
-  type: 'change-month-action',
+export const changeDateFromAction = (dateFrom?: Date): IChangeDateFromAction => ({
+  type: 'change-date-from',
   payload: {
-    month: month,
+    dateFrom: dateFrom,
+  }
+});
+
+export const changeDateToAction = (dateTo?: Date): IChangeDateToAction => ({
+  type: 'change-date-to',
+  payload: {
+    dateTo: dateTo,
   }
 });
 
@@ -32,6 +46,7 @@ export const changeServerCodeAction = (serverCode?: string): IChangeServerCodeAc
 });
 
 export type FiltersActions = IAction & (
-  IChangeMonthAction |
+  IChangeDateFromAction |
+  IChangeDateToAction |
   IChangeServerCodeAction
 )

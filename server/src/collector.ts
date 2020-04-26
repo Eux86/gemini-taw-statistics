@@ -2,9 +2,7 @@ import { Db } from "./database/db";
 import { MigrationsHandler } from "./database/migrations-handler";
 import { ScoresTable, IScoresTable } from "./database/tables/scores";
 import { UpdatesLogsTable, IUpdatesLogsTable } from "./database/tables/updates-log";
-import { IPlayerScores } from "./business-models/player-scores";
-import { TawScraper } from './scrapers/taw-scraper';
-import { CboxScraper } from './scrapers/cbox-scraper';
+import { IPlayerScores } from "./models/player-scores";
 import { QueryResult } from "pg";
 import { CboxPlayerStatsScraper } from "./scrapers/cbox-player-stats.scraper";
 import { TawPlayerStatsScraper } from "./scrapers/taw-player-stats.scraper";
@@ -39,16 +37,6 @@ export class Collector {
 
     this.scheduledScrapers = [
       {
-        scraper: new TawScraper(),
-        lastUpdate: new Date(0),
-        nextUpdate: undefined,
-      },
-      {
-        scraper: new CboxScraper(),
-        lastUpdate: new Date(0),
-        nextUpdate: undefined,
-      },
-      {
         scraper: new TawPlayerStatsScraper(this.db),
         lastUpdate: new Date(0),
         nextUpdate: undefined,
@@ -71,12 +59,6 @@ export class Collector {
   }
 
   private run = async () => {
-    // console.log('Only collecting between 7 and 9 am');
-    // const d = new Date();
-    //if (!(d.getHours() > 7 && d.getHours() < 9)) {
-    //  console.log('Not collecting');
-    //  return;
-    //}
     console.log('Collecting data from servers');
     const collectedScores = await this.collect();
     if (await this.shouldStore()) {

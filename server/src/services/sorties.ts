@@ -1,9 +1,7 @@
-import { IPlayerScores } from "../business-models/player-scores";
-import { ISortiesTable } from "../database/tables/sorties";
 import { SortiesTable } from "../database/tables/sorties";
-import { SortiesEventsTable, ISortieEventsTable } from "../database/tables/sorties-events";
-import { ISortieEventInfo } from "../business-models/sortie-event-info";
-import { SortieEvent } from "../business-models/sortie-event";
+import { ISortieEventsTable, SortiesEventsTable } from "../database/tables/sorties-events";
+import { ISortieEventInfo } from "../models/sortie-event-info";
+import { SortieEvent } from "../enums/sortie-event";
 
 export class SortiesService {
   private sortiesTable: SortiesTable;

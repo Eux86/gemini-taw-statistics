@@ -1,16 +1,16 @@
 import { Request, RequestHandler, Response } from 'express';
-import { IServices } from '../../business-models/i-services';
-import { transformIPlayerScoresToDto, transformIPlayerKillInfoToDto } from '../../transformers';
-import { IPlayerScores } from '../../business-models/player-scores';
+import { IServices } from '../../models/i-services';
+import { transformIPlayerScoresToDto, transformIPlayerKillInfoToDto, transformIScoresByDateToDto } from '../../transformers';
+import { IPlayerScores } from '../../models/player-scores';
 
-export const getScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
-  const {
-    scores
-  } = services;
-  const playersScores = await scores.getAllScores();
-  const playersScoresDto = playersScores.map(transformIPlayerScoresToDto);
-  response.send(JSON.stringify(playersScoresDto, null, 2));
-};
+// export const getScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
+//   const {
+//     scores
+//   } = services;
+//   const playersScores = await scores.getAllScores();
+//   const playersScoresDto = playersScores.map(transformIPlayerScoresToDto);
+//   response.send(JSON.stringify(playersScoresDto, null, 2));
+// };
 
 export const getLatestScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
   const {
@@ -20,6 +20,22 @@ export const getLatestScores = (services: IServices): RequestHandler => async (_
   const playersScoresDto = playersScores.map(transformIPlayerScoresToDto);
   response.send(JSON.stringify(playersScoresDto, null, 2));
 };
+
+export const getScoresFiltered = (services: IServices): RequestHandler => async (request: Request, response: Response) => {
+  const {
+    scores
+  } = services;
+  console.log('params', request.query);
+  const killsScores = await scores.getScoresFiltered({
+    startDate: request.query?.startDate,
+    endDate: request.query?.endDate,
+    playerName: request.query?.playerName,
+    serverCode: request.query?.serverCode,
+    eventType: request.query?.eventType,
+  });
+  const scoresDto = killsScores.map(transformIScoresByDateToDto);
+  response.send(JSON.stringify(scoresDto, null, 2));
+}
 
 export const getCsv = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
   const {
@@ -48,22 +64,4 @@ export const getAvailableServers = (services: IServices): RequestHandler => asyn
   } = services;
   const months = await scores.getAvailableServers();
   response.send(JSON.stringify(months));
-};
-
-export const getLatestKills = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
-  const {
-    sorties,
-  } = services;
-  const kills = await sorties.getLatestKills();
-  const dto = kills.map(transformIPlayerKillInfoToDto);
-  response.send(JSON.stringify(dto));
-};
-
-export const getLatestDeaths = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
-  const {
-    sorties,
-  } = services;
-  const deaths = await sorties.getLatestDeaths();
-  const dto = deaths.map(transformIPlayerKillInfoToDto);
-  response.send(JSON.stringify(dto));
 };

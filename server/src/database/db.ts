@@ -1,5 +1,5 @@
 import { Client, QueryResult } from 'pg';
-import { IPlayerScores } from '../business-models/player-scores';
+import { IPlayerScores } from '../models/player-scores';
 
 export class Db {
   client: Client;
@@ -36,7 +36,7 @@ export class Db {
   // ################################# GENERAL DB UTILITIES QUERIEDS 
   public query = async <T>(queryString: string): Promise<QueryResult<T>> => {
     return new Promise((resolve, reject) => {
-      // console.log('EXECUTING QUERY: ' + queryString);
+      console.log('EXECUTING QUERY: ' + queryString);
       this.client.query<T>(queryString, (err, res) => {
         if (err) {
           console.log('ERROR IN QUERY: ' + queryString);

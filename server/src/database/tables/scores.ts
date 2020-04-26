@@ -1,6 +1,6 @@
 import { Table } from "./table";
 import { Db } from "../db";
-import { IPlayerScores } from "../../business-models/player-scores";
+import { IPlayerScores } from "../../models/player-scores";
 
 export interface IScoresTable {
   id?: string;

@@ -5,7 +5,7 @@ import { SortiesTable } from '../database/tables/sorties';
 import { SortiesEventsTable as SortieEventsTable } from '../database/tables/sorties-events';
 import { ISortie, ISortieEvent } from './models/common';
 import { getPageContent, createHash } from './utils';
-import { SortieEvent } from '../business-models/sortie-event';
+import { SortieEvent } from '../enums/sortie-event';
 
 
 export class TawPlayerStatsScraper implements IScraper {
@@ -77,7 +77,7 @@ export class TawPlayerStatsScraper implements IScraper {
           landedat: sortieInfo.landedAt || '',
           playername: sortieInfo.playerName,
           servercode: 'taw',
-          sortiedate: sortieInfo.sortieDate,
+          sortiedate: sortieInfo.sortieDateString,
           takeoffat: sortieInfo.takeOffAt,
         })
         console.log('Added', sortieInfo.hash);
@@ -168,18 +168,18 @@ export class TawPlayerStatsScraper implements IScraper {
         events.push(entry);
       }
     });
-    const sortieDate = events[0].date;
+    const sortieDateString = events[0].date;
 
     const playerNameSelector = '#page-wrapper > div:nth-child(1) > div:nth-child(1) > div > h1 > a';
     const playerName = $(playerNameSelector).text().trim();
 
-    const hash = createHash(`${sortieDate}${playerName}taw`);
+    const hash = createHash(`${sortieDateString}${playerName}taw`);
     events.forEach(event => event.sortieHash = hash);
 
     const sortiesInfo: ISortie = ({
       hash,
       playerName,
-      sortieDate,
+      sortieDateString,
       aircraft,
       takeOffAt,
       landedAt,

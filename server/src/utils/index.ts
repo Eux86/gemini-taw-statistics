@@ -2,7 +2,7 @@ import {
   RequestHandler,
   Router,
 } from 'express';
-import { IServices } from '../business-models/i-services';
+import { IServices } from '../models/i-services';
 
 type Wrapper = ((router: Router) => void);
 
@@ -29,5 +29,6 @@ export const applyRoutes = (routes: Route[], router: Router, services: IServices
   routes.forEach((route: Route) => {
     const { method, path, handler } = route;
     router[method](path, handler(services));
+    console.log(`Route: ${method}: ${path}`);
   });
 };

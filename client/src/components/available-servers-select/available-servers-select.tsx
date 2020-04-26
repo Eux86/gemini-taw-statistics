@@ -1,6 +1,6 @@
 import React from 'react';
 import Dropdown, { IDropdownOption } from '../dropdown/dropdown';
-import { useAvailableServers } from '../../api/use-available-servers';
+import { useAvailableServers } from '../../hooks/api/use-available-servers';
 import { FiltersContext } from '../../data/filters-context';
 import { changeServerCodeAction } from '../../data/filters-actions';
 

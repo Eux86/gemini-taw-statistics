@@ -1,7 +1,9 @@
 import testRoute from './test/test.route';
-import apiRoute from './scores/api.route';
+import scoresRoutes from './scores/scores.routes';
+import sortiesRoutes from './sorties/sorties.routes';
 
 export default [
   ...testRoute,
-  ...apiRoute
+  ...sortiesRoutes,
+  ...scoresRoutes,
 ];

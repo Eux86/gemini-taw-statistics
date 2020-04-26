@@ -1,5 +1,5 @@
 import cheerio from 'cheerio';
-import { SortieEvent } from '../business-models/sortie-event';
+import { SortieEvent } from '../enums/sortie-event';
 import { IScraper } from '../collector';
 import { Db } from '../database/db';
 import { SortiesTable } from '../database/tables/sorties';
@@ -78,7 +78,7 @@ export class CboxPlayerStatsScraper implements IScraper {
           landedat: sortieInfo.landedAt || '',
           playername: sortieInfo.playerName,
           servercode: 'cbox',
-          sortiedate: sortieInfo.sortieDate,
+          sortiedate: sortieInfo.sortieDateString,
           takeoffat: sortieInfo.takeOffAt,
         })
         console.log('Added', sortieInfo.hash);
@@ -160,7 +160,7 @@ export class CboxPlayerStatsScraper implements IScraper {
     const sortiesInfo: Partial<ISortie> = ({
       hash,
       playerName,
-      sortieDate,
+      sortieDateString: sortieDate,
       aircraft,
       takeOffAt: 'unknown',
       landedAt: 'unknown',
@@ -219,5 +219,5 @@ export class CboxPlayerStatsScraper implements IScraper {
   }
 }
 
-new CboxPlayerStatsScraper({} as Db).run('=GEMINI=').then(() => console.log('== done =='));
+// new CboxPlayerStatsScraper({} as Db).run('=GEMINI=').then(() => console.log('== done =='));
 // npm run test-scraper
