@@ -1,7 +1,8 @@
-import { SortiesTable } from "../database/tables/sorties";
+import { SortiesTable, ISortiesTable } from "../database/tables/sorties";
 import { ISortieEventsTable, SortiesEventsTable } from "../database/tables/sorties-events";
 import { ISortieEventInfo } from "../models/sortie-event-info";
 import { SortieEvent } from "../enums/sortie-event";
+import { IWhereCondition } from '../database/tables/table';
 
 export class SortiesService {
   private sortiesTable: SortiesTable;
@@ -10,9 +11,20 @@ export class SortiesService {
     this.sortiesTable = sortiesTable;
   }
 
-  getLatestKills = async (numberOfResults = 10): Promise<ISortieEventInfo[]> => {
-    const kills = await this.getSortieEvent(SortieEvent.Killed, numberOfResults);
-    const enemyShotDowns = await this.getSortieEvent(SortieEvent.ShotdownEnemy, 200);
+  getLatest = async (type: SortieEvent, servercode?: string, numberOfResults = 10): Promise<ISortieEventInfo[]> => {
+    switch (type) {
+      case SortieEvent.Killed:
+        return this.getLatestKills(servercode, numberOfResults);
+      case SortieEvent.WasKilled:
+        return this.getLatestDeaths(servercode, numberOfResults);
+      default:
+        return this.getSortieEvent(type, servercode, numberOfResults);
+    }
+  }
+
+  private getLatestKills = async (servercode?: string, numberOfResults = 10): Promise<ISortieEventInfo[]> => {
+    const kills = await this.getSortieEvent(SortieEvent.Killed, servercode, numberOfResults);
+    const enemyShotDowns = await this.getSortieEvent(SortieEvent.ShotdownEnemy, servercode, 200);
     const result = kills.map(kill => {
       if (kill.enemyAircraft.toLowerCase() === 'pilot') {
         const relatedShotDown = enemyShotDowns.find(shotDown => shotDown.sortieHash === kill.sortieHash && shotDown.playerName === kill.playerName);
@@ -28,9 +40,9 @@ export class SortiesService {
     return result;
   }
 
-  getLatestDeaths = async (numberOfResults = 10): Promise<ISortieEventInfo[]> => {
-    const deaths = await this.getSortieEvent(SortieEvent.WasKilled, numberOfResults);
-    const shotDowns = await this.getSortieEvent(SortieEvent.WasShotdown, 200);
+  private getLatestDeaths = async (servercode?: string, numberOfResults = 10): Promise<ISortieEventInfo[]> => {
+    const deaths = await this.getSortieEvent(SortieEvent.WasKilled, servercode, numberOfResults);
+    const shotDowns = await this.getSortieEvent(SortieEvent.WasShotdown, servercode, 200);
     const result = deaths.map(death => {
       const relatedShotDown = shotDowns.find(shotDown => shotDown.sortieHash === death.sortieHash);
       const filled = {
@@ -43,11 +55,16 @@ export class SortiesService {
     return result;
   }
 
-  private getSortieEvent = async (type: SortieEvent, numberOfResults = 10): Promise<ISortieEventInfo[]> => {
+  private getSortieEvent = async (type: SortieEvent, serverCode?: string, numberOfResults = 10): Promise<ISortieEventInfo[]> => {
+    const conditions: IWhereCondition<ISortiesTable, ISortieEventsTable>[] = [];
+    conditions.push({ fieldName: 'event', value: `\'${type}\'` });
+    if (serverCode) {
+      conditions.push({ fieldName: 'servercode', value: `'${serverCode}'` });
+    }
     const result = await this.sortiesTable.select<ISortieEventsTable>()
       .innerJoin(SortiesEventsTable.tableName)
       .on('hash', 'sortiehash')
-      .where('event', `\'${type}\'`)
+      .where(...conditions)
       .orderBy("sortiedate", true)
       .limit(numberOfResults)
       .execute();

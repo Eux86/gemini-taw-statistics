@@ -60,7 +60,7 @@ export class ScoresService {
 
   getLatestScores = async (): Promise<IPlayerScores[]> => {
     const subQuery = this.scoresTable.select('updatedate').orderBy('updatedate', true).limit(1).queryString;
-    const result = await this.scoresTable.select().where('updatedate', `(${subQuery})`).execute();
+    const result = await this.scoresTable.select().where({ fieldName: 'updatedate', value: `(${subQuery})` }).execute();
     const playerScores = result.rows.map((row: IScoresTable): IPlayerScores => ({
       airKills: row.airkills,
       deaths: row.deaths,

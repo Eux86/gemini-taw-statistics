@@ -1,6 +1,6 @@
 import { Request, RequestHandler, Response } from 'express';
 import { IServices } from '../../models/i-services';
-import { transformIPlayerScoresToDto, transformIPlayerKillInfoToDto, transformIScoresByDateToDto } from '../../transformers';
+import { transformIPlayerScoresToDto, transformIScoresByDateToDto } from '../../transformers';
 import { IPlayerScores } from '../../models/player-scores';
 
 // export const getScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {

@@ -1,6 +1,10 @@
 import { Db } from "../db"
 import { QueryResult } from "pg";
 
+export interface IWhereCondition<T,J>{
+  fieldName: keyof(T & J);
+  value: string
+}
 export class Table<T> {
   db: Db;
   tableName: string;
@@ -71,34 +75,36 @@ export class Table<T> {
     }
   }
 
-  where = <J>(previous: string, _this: Table<T>) => (fieldName: keyof (T & J), value: string) => {
-    const queryString = `${previous} WHERE ${fieldName} = ${value}`;
-    return {
-      execute: _this.execute<J>(queryString, _this),
-      orderBy: _this.orderBy<J>(queryString, _this),
-      limit: _this.limit<J>(queryString, _this),
-      queryString: queryString,
-    }
-  }
-
-  orderBy = <J>(previous: string, _this: Table<T>) => (fieldName: keyof (T & J), desc: boolean = false) => {
-    const queryString = `${previous} ORDER BY ${fieldName} ${desc ? 'DESC' : ''}`;
-    return {
-      execute: _this.execute<J>(queryString, _this),
-      limit: _this.limit<J>(queryString, _this),
-      queryString: queryString,
-    }
-  }
   
-  limit = <J>(previous: string, _this: Table<T>) => (rowsNumber: number) => {
-    const queryString = `${previous} LIMIT ${rowsNumber}`;
-    return {
-      execute: _this.execute<J>(queryString, _this),
-      queryString: queryString,
-    }
+where = <J>(previous: string, _this: Table<T>) => (...conditions: IWhereCondition<T,J>[]) => {
+  const filter = conditions.map(condition => `${condition.fieldName} = ${condition.value}`).join(' AND ');
+  const queryString = `${previous} WHERE ${filter}`;
+  return {
+    execute: _this.execute<J>(queryString, _this),
+    orderBy: _this.orderBy<J>(queryString, _this),
+    limit: _this.limit<J>(queryString, _this),
+    queryString: queryString,
   }
+}
 
-  execute = <J>(previous: string, _this: Table<T>) => async (): Promise<QueryResult<T & J>> => {
-    return await _this.db.query(`${previous};`);
+orderBy = <J>(previous: string, _this: Table<T>) => (fieldName: keyof (T & J), desc: boolean = false) => {
+  const queryString = `${previous} ORDER BY ${fieldName} ${desc ? 'DESC' : ''}`;
+  return {
+    execute: _this.execute<J>(queryString, _this),
+    limit: _this.limit<J>(queryString, _this),
+    queryString: queryString,
   }
+}
+
+limit = <J>(previous: string, _this: Table<T>) => (rowsNumber: number) => {
+  const queryString = `${previous} LIMIT ${rowsNumber}`;
+  return {
+    execute: _this.execute<J>(queryString, _this),
+    queryString: queryString,
+  }
+}
+
+execute = <J>(previous: string, _this: Table<T>) => async (): Promise<QueryResult<T & J>> => {
+  return await _this.db.query(`${previous};`);
+}
 }

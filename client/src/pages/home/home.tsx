@@ -4,19 +4,17 @@ import { AvailableServersSelect } from '../../components/available-servers-selec
 import { KillsList } from '../../components/kills-list/kills-list';
 import { LatestScores } from '../../components/latest-scores/latest-scores';
 import { PerformanceByMonth } from '../../components/performance-history/performance-history';
-import { FiltersContext } from '../../data/filters-context';
-import { useLatestDeaths } from '../../hooks/api/use-latest-deaths';
-import { useLatestKills } from '../../hooks/api/use-latest-kills';
+import { useLatestEvents } from '../../hooks/api/use-latest-events';
 import './style.css';
+import { SortieEvent } from 'gemini-statistics-api/build/enums/sortie-event';
 
 export interface IProps {
 
 }
 
 export const HomePage: React.FunctionComponent<IProps> = (props) => {
-  const { state } = useContext(FiltersContext);
-  const [latestKills] = useLatestKills();
-  const [latestDeaths] = useLatestDeaths();
+  const [latestKills] = useLatestEvents(SortieEvent.Killed);
+  const [latestDeaths] = useLatestEvents(SortieEvent.WasKilled);
   return (
     <>
       <div className="header">
