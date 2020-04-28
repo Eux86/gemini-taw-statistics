@@ -24,16 +24,12 @@ export interface IScraper {
 }
 
 export class Collector {
-  private scoresTable: ScoresTable;
-  private updatesLogsTable: UpdatesLogsTable;
   private db: Db;
 
   private scheduledScrapers: IScheduledScraper[];
 
   constructor(db: Db, scoresTable: ScoresTable, updatesLogsTable: UpdatesLogsTable) {
     this.db = db;
-    this.scoresTable = scoresTable;
-    this.updatesLogsTable = updatesLogsTable;
 
     this.scheduledScrapers = [
       {
@@ -61,10 +57,6 @@ export class Collector {
   private run = async () => {
     console.log('Collecting data from servers');
     const collectedScores = await this.collect();
-    if (await this.shouldStore()) {
-      console.log('Storing data');
-      await this.store(collectedScores);
-    }
     console.log('done');
   }
 
@@ -74,32 +66,6 @@ export class Collector {
       scheduledScraper.lastUpdate = new Date(Date.now());
       return { scheduledScraper, result };
     }));
-    return results;
-  }
-
-  private shouldStore = async (): Promise<boolean> => {
-    const latestUpdate = await this.updatesLogsTable.getLatestUpdate();
-    const hourDay = 1000 * 60 * 60 * 24;
-    const dayAgo = new Date(Date.now() - hourDay);
-
-    console.log(`Last update: ${latestUpdate}`);
-    console.log(`Current date: ${new Date(Date.now())}`);
-    const shouldStore = latestUpdate < dayAgo;
-    console.log(`${shouldStore ? '' : 'Not'} storing`);
-    return latestUpdate < dayAgo;
-  }
-
-  private store = async (scrapersResults: IScraperResults[]) => {
-    const scores = scrapersResults.reduce<IPlayerScores[]>((accumulator, scraperResult) => {
-      if (scraperResult.result) {
-        return accumulator.concat(scraperResult.result);
-      }
-      return accumulator;
-    }, []);
-    const results = this.db.executeTransaction<QueryResult<IUpdatesLogsTable | IScoresTable>>(
-      ...scores.map((playerScore: IPlayerScores) => () => this.scoresTable.add(playerScore as IScoresTable)),
-      () => this.updatesLogsTable.add({ servercode: 'all' }),
-    );
     return results;
   }
 }
