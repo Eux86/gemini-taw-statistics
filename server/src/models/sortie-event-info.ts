@@ -7,4 +7,5 @@ export interface ISortieEventInfo {
   ownAircraft: string;
   enemyAircraft: string;
   enemyPlayer: string;
+  sortieHash: number;
 }

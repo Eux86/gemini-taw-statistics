@@ -86,7 +86,7 @@ export class TawPlayerStatsScraper implements IScraper {
         for (let k = 0; k < sortieInfo.events.length; k++) {
           const currentEvent = sortieInfo.events[k];
           await this.sortieEventsTable.add({
-            sortieHash: currentEvent.sortieHash,
+            sortiehash: currentEvent.sortieHash,
             enemyplayer: currentEvent.enemyPlayer,
             event: currentEvent.event,
             target: currentEvent.target,
@@ -161,7 +161,7 @@ export class TawPlayerStatsScraper implements IScraper {
         sortieHash: 0,
         date: formattedDate,
         event: this.transformToCommonEvent($(cols[1]).text().trim()),
-        target: (type.toLowerCase() === 'plane') ? object : type,
+        target: (type.toLowerCase() === 'plane') ? object : type || object,
         enemyPlayer: $(cols[5]).text().trim(),
       }
       if (entry.event !== SortieEvent.Other) {
@@ -196,6 +196,10 @@ export class TawPlayerStatsScraper implements IScraper {
       case 'END': return SortieEvent.End;
       case 'SHOT DOWN': return SortieEvent.ShotdownEnemy;
       case 'DESTROYED': return SortieEvent.DestroyedGroundTarget;
+      case 'WAS KILLED': return SortieEvent.WasKilled;
+      case 'KILLED': return SortieEvent.Killed;
+      case 'CRASHED': return SortieEvent.Crashed;
+      case 'EJECTED': return SortieEvent.Bailed;
       default: return SortieEvent.Other;
     }
   }

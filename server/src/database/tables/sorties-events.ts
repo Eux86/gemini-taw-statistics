@@ -3,7 +3,7 @@ import { Db } from "../db";
 
 export interface ISortieEventsTable {
   id?: string;
-  sortieHash: number;
+  sortiehash: number;
   event: string;
   target?: string;
   enemyplayer?: string;

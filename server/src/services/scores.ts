@@ -103,7 +103,7 @@ export class ScoresService {
     const dateField: keyof ISortieEventsTable = 'date';
     const eventField: keyof ISortieEventsTable = 'event';
     const serverCodeField: keyof ISortiesTable = 'servercode';
-    const sortieHashField: keyof ISortieEventsTable = 'sortieHash';
+    const sortieHashField: keyof ISortieEventsTable = 'sortiehash';
     const hashField: keyof ISortiesTable = 'hash';
     const filterString = this.getFilterString(filter);
     const queryString = `

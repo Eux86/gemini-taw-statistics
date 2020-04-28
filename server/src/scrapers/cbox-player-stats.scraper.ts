@@ -87,7 +87,7 @@ export class CboxPlayerStatsScraper implements IScraper {
         for (let k = 0; k < sortieInfo.events.length; k++) {
           const currentEvent = sortieInfo.events[k];
           await this.sortieEventsTable.add({
-            sortieHash: currentEvent.sortieHash,
+            sortiehash: currentEvent.sortieHash,
             enemyplayer: currentEvent.enemyPlayer,
             event: currentEvent.event,
             target: currentEvent.target,
@@ -214,6 +214,10 @@ export class CboxPlayerStatsScraper implements IScraper {
       case 'end': return SortieEvent.End;
       case 'SHOTDOWN': return SortieEvent.ShotdownEnemy;
       case 'DESTROYED': return SortieEvent.DestroyedGroundTarget;
+      case 'DIED': return SortieEvent.WasKilled;
+      case 'KILLED': return SortieEvent.Killed;
+      case 'BAILOUT': return SortieEvent.Bailed;
+      case 'crashed': return SortieEvent.Crashed;
       default: return SortieEvent.Other;
     }
   }

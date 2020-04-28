@@ -11,23 +11,46 @@ export class SortiesService {
   }
 
   getLatestKills = async (numberOfResults = 10): Promise<ISortieEventInfo[]> => {
-    const result = await this.getSortieEvent(SortieEvent.ShotdownEnemy, numberOfResults);
+    const kills = await this.getSortieEvent(SortieEvent.Killed, numberOfResults);
+    const enemyShotDowns = await this.getSortieEvent(SortieEvent.ShotdownEnemy, 200);
+    const result = kills.map(kill => {
+      if (kill.enemyAircraft.toLowerCase() === 'pilot') {
+        const relatedShotDown = enemyShotDowns.find(shotDown => shotDown.sortieHash === kill.sortieHash && shotDown.playerName === kill.playerName);
+        const filled = {
+          ...kill,
+          enemyAircraft: relatedShotDown?.enemyAircraft,
+        } as ISortieEventInfo;
+        return filled;
+      } else {
+        return kill;
+      }
+    });
     return result;
   }
 
   getLatestDeaths = async (numberOfResults = 10): Promise<ISortieEventInfo[]> => {
-    const result = await this.getSortieEvent(SortieEvent.WasShotdown, numberOfResults);
+    const deaths = await this.getSortieEvent(SortieEvent.WasKilled, numberOfResults);
+    const shotDowns = await this.getSortieEvent(SortieEvent.WasShotdown, 200);
+    const result = deaths.map(death => {
+      const relatedShotDown = shotDowns.find(shotDown => shotDown.sortieHash === death.sortieHash);
+      const filled = {
+        ...death,
+        enemyAircraft: relatedShotDown?.enemyAircraft,
+        enemyPlayer: relatedShotDown?.enemyPlayer,
+      } as ISortieEventInfo;
+      return filled;
+    });
     return result;
   }
 
   private getSortieEvent = async (type: SortieEvent, numberOfResults = 10): Promise<ISortieEventInfo[]> => {
     const result = await this.sortiesTable.select<ISortieEventsTable>()
-    .innerJoin(SortiesEventsTable.tableName)
-    .on('hash','sortieHash')
-    .where('event', `\'${type}\'`)
-    .orderBy("sortiedate", true)
-    .limit(numberOfResults)
-    .execute();
+      .innerJoin(SortiesEventsTable.tableName)
+      .on('hash', 'sortiehash')
+      .where('event', `\'${type}\'`)
+      .orderBy("sortiedate", true)
+      .limit(numberOfResults)
+      .execute();
     const latestKills = result.rows.map((row): ISortieEventInfo => ({
       date: row.date,
       enemyAircraft: row.target || '',
@@ -35,7 +58,8 @@ export class SortiesService {
       ownAircraft: row.aircraft,
       playerName: row.playername,
       serverCode: row.servercode,
-      takeOffAt: row.takeoffat
+      takeOffAt: row.takeoffat,
+      sortieHash: row.sortiehash,
     }));
     return latestKills;
   }
