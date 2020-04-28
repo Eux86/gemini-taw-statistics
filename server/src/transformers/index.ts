@@ -29,6 +29,7 @@ export const transformIPlayerKillInfoToDto = (info: ISortieEventInfo): ISortieEv
   playerName: info.playerName,
   serverCode: info.serverCode,
   takeOffAt: info.takeOffAt,
+  url: info.url,
 })
 
 export const transformIScoresByDateToDto = (data: IScoreByDate): IScoreByDateDto => ({

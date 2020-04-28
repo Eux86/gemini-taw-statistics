@@ -1,6 +1,7 @@
 body {
   --backgroundColor: #232531;
   --backgroundContrast:  #000;
+  --backgroundContrastLight:  #343652;
   --textBasic: #cfcfd1;
   --textPrimary: #fff;
   --textSecondary: #fff;
@@ -12,6 +13,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--backgroundColor);
   color: var(--textBasic);
+}
+
+select option {
+  margin: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
 }
 
 .header {

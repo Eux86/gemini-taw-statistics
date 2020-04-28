@@ -9,6 +9,7 @@ export interface ISortie {
   landedAt?: string;
   ditched?: string;
   events: ISortieEvent[];
+  url: string,
 }
 
 export interface ISortieEvent {

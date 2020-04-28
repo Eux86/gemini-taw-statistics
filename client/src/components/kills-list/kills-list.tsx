@@ -18,14 +18,19 @@ const formatDate = (dateString: string): string => {
   month = (+month < 10 ? '0' : '') + month;
   let day: string = '' + (date.getDate());
   day = (+day < 10 ? '0' : '') + day;
-  return `${day} ${month} ${date.toLocaleTimeString()}`
+  let hours = '' + date.getHours();
+  hours = (+hours < 10 ? '0' : '') + hours;
+  let min = '' + date.getMinutes();
+  min = (+min < 10 ? '0' : '') + min;
+  return `${day} ${month} ${hours}:${min}`
 }
 
+
 const KillInfo = ({ data, color }: { data: ISortieEventInfoDto; color: string }) => (
-  <tr>
+  <tr onClick={() => window.open(data.url, "_blank")}>
     <td>{formatDate(data.date)}<br /><small>({data.serverCode})</small></td>
     <td>{data.playerName}<br />({data.ownAircraft})</td>
-    <td><span className="aim-icon" style={{fill: color}}><AimIcon /></span></td>
+    <td><span className="aim-icon" style={{ fill: color }}><AimIcon /></span></td>
     <td>{data.enemyPlayer}<br />({data.enemyAircraft})</td>
   </tr>
 )

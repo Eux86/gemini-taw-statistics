@@ -2,5 +2,16 @@
   fill: #00ffb0;
 }
 .kills-list td {
-  padding: 10px;
+  padding: 10px 5px 10px 5px;
+}
+.kills-list tr:hover {
+  cursor: pointer;
+  background-color: var(--backgroundContrastLight);
+}
+.kills-list table {
+  border-collapse:collapse;
+}
+
+.kills-list {
+  overflow: auto;
 }

@@ -6,4 +6,5 @@ export interface ISortieEventInfoDto {
   ownAircraft: string;
   enemyAircraft: string;
   enemyPlayer: string;
+  url: string;
 }

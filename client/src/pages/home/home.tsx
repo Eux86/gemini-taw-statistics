@@ -40,13 +40,19 @@ export const HomePage: React.FunctionComponent<IProps> = (props) => {
         </div>
         <LatestScores />
         <div className="site-section-heading">
-          <h2>Latest Kills</h2>
+          <h2>Latest Events</h2>
         </div>
-        <KillsList kills={latestKills} color="#00ffb0" />
-        <div className="site-section-heading">
-          <h2>Latest Deaths</h2>
+        {/* this should be its own component */}
+        <div className="latest-events-container">
+          <div>
+            <h2>Kills</h2>
+            <KillsList kills={latestKills} color="#00ffb0" />
+          </div>
+          <div>
+            <h2>Deaths</h2>
+            <KillsList kills={latestDeaths} color="#da5737" />
+          </div>
         </div>
-        <KillsList kills={latestDeaths} color="#da5737"/>
       </div>
     </>
   )

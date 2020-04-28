@@ -77,6 +77,7 @@ export class SortiesService {
       serverCode: row.servercode,
       takeOffAt: row.takeoffat,
       sortieHash: row.sortiehash,
+      url: row.url,
     }));
     return latestKills;
   }

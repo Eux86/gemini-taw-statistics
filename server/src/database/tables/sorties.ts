@@ -10,6 +10,7 @@ export interface ISortiesTable {
   aircraft: string;
   takeoffat: string;
   landedat: string;
+  url: string;
 }
 
 export class SortiesTable extends Table<ISortiesTable> {

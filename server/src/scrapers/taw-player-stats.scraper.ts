@@ -68,23 +68,24 @@ export class TawPlayerStatsScraper implements IScraper {
   private store = async (sorties: ISortie[]): Promise<void> => {
     console.log(`Adding ${sorties.length} entries`);
     for (let i = 0; i < sorties.length; i++) {
-      const sortieInfo = sorties[i];
-      console.log('adding sortie', sortieInfo.hash);
+      const sortieData = sorties[i];
+      console.log('adding sortie', sortieData.hash);
       try {
         await this.sortiesTable.add({
-          hash: sortieInfo.hash,
-          aircraft: sortieInfo.aircraft,
-          landedat: sortieInfo.landedAt || '',
-          playername: sortieInfo.playerName,
+          hash: sortieData.hash,
+          aircraft: sortieData.aircraft,
+          landedat: sortieData.landedAt || '',
+          playername: sortieData.playerName,
           servercode: 'taw',
-          sortiedate: sortieInfo.sortieDateString,
-          takeoffat: sortieInfo.takeOffAt,
+          sortiedate: sortieData.sortieDateString,
+          takeoffat: sortieData.takeOffAt,
+          url: sortieData.url,
         })
-        console.log('Added', sortieInfo.hash);
+        console.log('Added', sortieData.hash);
 
         console.log('Adding sortie events:');
-        for (let k = 0; k < sortieInfo.events.length; k++) {
-          const currentEvent = sortieInfo.events[k];
+        for (let k = 0; k < sortieData.events.length; k++) {
+          const currentEvent = sortieData.events[k];
           await this.sortieEventsTable.add({
             sortiehash: currentEvent.sortieHash,
             enemyplayer: currentEvent.enemyPlayer,
@@ -96,7 +97,7 @@ export class TawPlayerStatsScraper implements IScraper {
         }
       } catch (error) {
         if (error.code === '23505') {
-          console.log(`Sortie ${sortieInfo.hash} already exist, skipping.`);
+          console.log(`Sortie ${sortieData.hash} already exist, skipping.`);
         } else {
           throw new Error(error);
         }
@@ -185,6 +186,7 @@ export class TawPlayerStatsScraper implements IScraper {
       landedAt,
       ditched,
       events,
+      url,
     });
     return sortiesInfo;
   }
