@@ -22,9 +22,9 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
   // Get Scores by event
   React.useEffect(() => {
     if (!data) return;
-    const totalAirKillsByDate = data.filter((score) => score.eventType === SortieEvent.ShotdownEnemy);
+    const totalAirKillsByDate = data.filter((score) => score.eventType === SortieEvent.Killed);
     const totalGroundKillsByDate = data.filter((score) => score.eventType === SortieEvent.DestroyedGroundTarget);
-    const totalDeathsByDate = data.filter((score) => score.eventType === SortieEvent.WasShotdown);
+    const totalDeathsByDate = data.filter((score) => score.eventType === SortieEvent.WasKilled);
     setTotalAirKillsByDate(totalAirKillsByDate);
     setTotalGroundKillsByDate(totalGroundKillsByDate);
     setTotalDeathsByDate(totalDeathsByDate);

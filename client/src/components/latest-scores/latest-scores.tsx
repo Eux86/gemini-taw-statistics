@@ -15,8 +15,8 @@ export const LatestScores: React.FunctionComponent<{}> = () => {
   const getScoresSum = (scores: IScoreByDateDto[], type: SortieEvent) => scores?.filter(score => score.eventType === type).reduce((prev, current) => prev + +current.score, 0);
   React.useEffect(() => {
     if (!scores) return;
-    const totalAirKills = getScoresSum(scores, SortieEvent.ShotdownEnemy);
-    const totalDeaths = getScoresSum(scores, SortieEvent.WasShotdown);
+    const totalAirKills = getScoresSum(scores, SortieEvent.Killed);
+    const totalDeaths = getScoresSum(scores, SortieEvent.WasKilled);
     const totalGroundKills = getScoresSum(scores, SortieEvent.DestroyedGroundTarget);
     const totalSorties = scores.filter(score => score.eventType === SortieEvent.TakeOff).length;
     setTotalAirKills(totalAirKills || 0);
