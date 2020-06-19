@@ -13,8 +13,8 @@ export interface IProps {
 }
 
 export const HomePage: React.FunctionComponent<IProps> = (props) => {
-  const [latestKills] = useLatestEvents(SortieEvent.Killed);
-  const [latestDeaths] = useLatestEvents(SortieEvent.WasKilled);
+  const [latestShotdown] = useLatestEvents(SortieEvent.ShotdownEnemy);
+  const [latestEnemyShotdown] = useLatestEvents(SortieEvent.WasShotdown);
   return (
     <>
       <div className="header">
@@ -45,12 +45,12 @@ export const HomePage: React.FunctionComponent<IProps> = (props) => {
         {/* this should be its own component */}
         <div className="latest-events-container">
           <div>
-            <h2>Kills</h2>
-            <KillsList kills={latestKills} color="#00ffb0" />
+            <h2>Shotdown</h2>
+            <KillsList kills={latestShotdown} color="#00ffb0" />
           </div>
           <div>
-            <h2>Deaths</h2>
-            <KillsList kills={latestDeaths} color="#da5737" />
+            <h2>Enemy Shotdown</h2>
+            <KillsList kills={latestEnemyShotdown} color="#da5737" />
           </div>
         </div>
       </div>

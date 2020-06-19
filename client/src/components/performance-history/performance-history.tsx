@@ -11,7 +11,7 @@ interface IProps {
 export const PerformanceByMonth: FunctionComponent<IProps> = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [, setChart] = React.useState<Chart | undefined>(undefined);
-  const { state } = React.useContext(FiltersContext);
+  const { state } = React.useContext(FiltersContext);
   const [timeline, setTimeline] = React.useState<Date[]>();
 
   const [data] = useScores();
@@ -22,9 +22,9 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
   // Get Scores by event
   React.useEffect(() => {
     if (!data) return;
-    const totalAirKillsByDate = data.filter((score) => score.eventType === SortieEvent.Killed);
+    const totalAirKillsByDate = data.filter((score) => score.eventType === SortieEvent.ShotdownEnemy);
     const totalGroundKillsByDate = data.filter((score) => score.eventType === SortieEvent.DestroyedGroundTarget);
-    const totalDeathsByDate = data.filter((score) => score.eventType === SortieEvent.WasKilled);
+    const totalDeathsByDate = data.filter((score) => score.eventType === SortieEvent.WasShotdown);
     setTotalAirKillsByDate(totalAirKillsByDate);
     setTotalGroundKillsByDate(totalGroundKillsByDate);
     setTotalDeathsByDate(totalDeathsByDate);
@@ -38,7 +38,7 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
     let currentDate = state.from;
     const dates: Date[] = [];
     let counter = 0;
-    while (currentDate<=state.to && counter < 90) {
+    while (currentDate <= state.to && counter < 90) {
       dates.push(currentDate);
       const nextDate = new Date(currentDate);
       nextDate.setDate(currentDate.getDate() + 1);
@@ -57,7 +57,14 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
       type: 'bar',
       options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
       },
       data: {
         labels: timeline?.map(formatDate),
@@ -102,7 +109,7 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
   }
 
   const spreadScoresOnTimeline = (scores: IScoreByDateDto[]) => {
-    return timeline?.map(currentDate => scores?.find(score => isSameDay(new Date(score.date),currentDate))?.score);
+    return timeline?.map(currentDate => scores?.find(score => isSameDay(new Date(score.date), currentDate))?.score);
   }
 
   return (
