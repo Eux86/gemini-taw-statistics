@@ -3,5 +3,5 @@ export const getStartEndMonthByDate = (date: Date) => {
   const m = date.getMonth();
   const firstDate = new Date(y, m, 1);
   const lastDate = new Date(y, m + 1, 0);
-  return { firstDate, lastDate }
-}
+  return { firstDate, lastDate };
+};

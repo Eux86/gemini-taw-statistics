@@ -1,16 +1,16 @@
 import React from 'react';
 import { ISortieEventInfoDto } from 'gemini-statistics-api/build/dtos/sortie-event-info.dto';
-import { FiltersContext } from '../../data/filters-context';
 import { SortieEvent } from 'gemini-statistics-api/build/enums/sortie-event';
+import { FiltersContext } from '../../data/filters-context';
 
 export const useLatestEvents = (eventType: SortieEvent) => {
   const [data, setData] = React.useState<ISortieEventInfoDto[]>([]);
   const { state } = React.useContext(FiltersContext);
-  
+
   React.useEffect(() => {
     const filters = [
       `type=${eventType}`,
-    ]
+    ];
     if (state.serverCode) {
       filters.push(`serverCode=${state.serverCode}`);
     }
@@ -18,7 +18,7 @@ export const useLatestEvents = (eventType: SortieEvent) => {
       const events: ISortieEventInfoDto[] = await response.json();
       setData(events);
     });
-  }, [state]);
+  }, [state, eventType]);
 
   return [data];
-}
+};

@@ -10,39 +10,58 @@ const AimIcon = () => (
       <path d="M339.79,260.641H360c5.523,0,10-4.477,10-10s-4.477-10-10-10h-20.21c-5.523,0-10,4.477-10,10     S334.267,260.641,339.79,260.641z" />
     </g>
   </svg>
-)
+);
 
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   let month: string = getMonthNameByIndex(date.getMonth());
   month = (+month < 10 ? '0' : '') + month;
-  let day: string = '' + (date.getDate());
+  let day: string = `${date.getDate()}`;
   day = (+day < 10 ? '0' : '') + day;
-  let hours = '' + date.getHours();
+  let hours = `${date.getHours()}`;
   hours = (+hours < 10 ? '0' : '') + hours;
-  let min = '' + date.getMinutes();
+  let min = `${date.getMinutes()}`;
   min = (+min < 10 ? '0' : '') + min;
-  return `${day} ${month} ${hours}:${min}`
-}
-
+  return `${day} ${month} ${hours}:${min}`;
+};
 
 const KillInfo = ({ data, color }: { data: ISortieEventInfoDto; color: string }) => (
-  <tr onClick={() => window.open(data.url, "_blank")}>
-    <td>{formatDate(data.date)}<br /><small>({data.serverCode})</small></td>
-    <td>{data.playerName}<br />({data.ownAircraft})</td>
+  <tr onClick={() => window.open(data.url, '_blank')}>
+    <td>
+      {formatDate(data.date)}
+      <br />
+      <small>
+        (
+        {data.serverCode}
+        )
+      </small>
+    </td>
+    <td>
+      {data.playerName}
+      <br />
+      (
+      {data.ownAircraft}
+      )
+    </td>
     <td><span className="aim-icon" style={{ fill: color }}><AimIcon /></span></td>
-    <td>{data.enemyPlayer}<br />({data.enemyAircraft})</td>
+    <td>
+      {data.enemyPlayer}
+      <br />
+      (
+      {data.enemyAircraft}
+      )
+    </td>
   </tr>
-)
+);
 
-export const KillsList: React.FunctionComponent<{ kills: ISortieEventInfoDto[], color: string }> = ({ kills, color }) => {
-  return (
-    <div className="kills-list">
-      <table>
+export const KillsList: React.FunctionComponent<{ kills: ISortieEventInfoDto[], color: string }> = ({ kills, color }) => (
+  <div className="kills-list">
+    <table>
+      <tbody>
         {kills.map((killInfo) => (
-          <KillInfo data={killInfo} color={color} />
+          <KillInfo data={killInfo} color={color} key={JSON.stringify(killInfo)} />
         ))}
-      </table>
-    </div>
-  )
-}
+      </tbody>
+    </table>
+  </div>
+);

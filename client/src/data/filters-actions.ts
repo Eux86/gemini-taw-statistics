@@ -1,4 +1,3 @@
-
 interface IAction {
   type: string;
 }
@@ -27,22 +26,22 @@ interface IChangeServerCodeAction extends IAction {
 export const changeDateFromAction = (dateFrom?: Date): IChangeDateFromAction => ({
   type: 'change-date-from',
   payload: {
-    dateFrom: dateFrom,
-  }
+    dateFrom,
+  },
 });
 
 export const changeDateToAction = (dateTo?: Date): IChangeDateToAction => ({
   type: 'change-date-to',
   payload: {
-    dateTo: dateTo,
-  }
+    dateTo,
+  },
 });
 
 export const changeServerCodeAction = (serverCode?: string): IChangeServerCodeAction => ({
   type: 'change-serverCode-action',
   payload: {
-    serverCode: serverCode
-  }
+    serverCode,
+  },
 });
 
 export type FiltersActions = IAction & (

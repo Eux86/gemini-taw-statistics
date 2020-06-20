@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import Chart from 'chart.js';
-import { useScores } from '../../hooks/api/use-scores';
 import { SortieEvent } from 'gemini-statistics-api/build/enums/sortie-event';
 import { IScoreByDateDto } from 'gemini-statistics-api/build/dtos/scores-by-date.dto';
+import { useScores } from '../../hooks/api/use-scores';
 import { FiltersContext } from '../../data/filters-context';
 
 interface IProps {
@@ -22,13 +22,23 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
   // Get Scores by event
   React.useEffect(() => {
     if (!data) return;
-    const totalAirKillsByDate = data.filter((score) => score.eventType === SortieEvent.ShotdownEnemy);
-    const totalGroundKillsByDate = data.filter((score) => score.eventType === SortieEvent.DestroyedGroundTarget);
-    const totalDeathsByDate = data.filter((score) => score.eventType === SortieEvent.WasShotdown);
-    setTotalAirKillsByDate(totalAirKillsByDate);
-    setTotalGroundKillsByDate(totalGroundKillsByDate);
-    setTotalDeathsByDate(totalDeathsByDate);
+    const totalAirKillsByDateInt = data.filter((score) => score.eventType === SortieEvent.ShotdownEnemy);
+    const totalGroundKillsByDateInt = data.filter((score) => score.eventType === SortieEvent.DestroyedGroundTarget);
+    const totalDeathsByDateInt = data.filter((score) => score.eventType === SortieEvent.WasShotdown);
+    setTotalAirKillsByDate(totalAirKillsByDateInt);
+    setTotalGroundKillsByDate(totalGroundKillsByDateInt);
+    setTotalDeathsByDate(totalDeathsByDateInt);
   }, [data]);
+
+  const formatDate = (date: Date) => {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${day > 9 ? day : `0${day}`}/${month > 9 ? month : `0${month}`}`;
+  };
+
+  const isSameDay = (date1: Date, date2: Date) => date1.getDate() === date2.getDate()
+    && date1.getMonth() === date2.getMonth()
+    && date1.getFullYear() === date2.getFullYear();
 
   // Generate all dates for selected period
   React.useEffect(() => {
@@ -43,10 +53,15 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
       const nextDate = new Date(currentDate);
       nextDate.setDate(currentDate.getDate() + 1);
       currentDate = nextDate;
-      counter++;
+      counter += 1;
     }
     setTimeline(dates);
   }, [state]);
+
+  const spreadScoresOnTimeline = React.useCallback((scores: IScoreByDateDto[]) =>
+    // eslint-disable-next-line implicit-arrow-linebreak
+    timeline?.map((currentDate) => scores?.find((score) => isSameDay(new Date(score.date), currentDate))?.score),
+  [timeline?.map]);
 
   React.useEffect(() => {
     if (!canvasRef?.current) {
@@ -61,10 +76,10 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
         scales: {
           yAxes: [{
             ticks: {
-              beginAtZero: true
-            }
-          }]
-        }
+              beginAtZero: true,
+            },
+          }],
+        },
       },
       data: {
         labels: timeline?.map(formatDate),
@@ -86,35 +101,27 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
             data: totalDeathsByDate && spreadScoresOnTimeline(totalDeathsByDate),
             borderColor: '#ca0000',
             backgroundColor: '#ca0000',
-          }
-        ]
+          },
+        ],
       },
     });
     setChart(newChart);
+    // eslint-disable-next-line consistent-return
     return (() => {
       newChart.destroy();
-    })
-  }, [canvasRef, totalAirKillsByDate, totalGroundKillsByDate, totalDeathsByDate]);
-
-  const formatDate = (date: Date) => {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${day > 9 ? day : '0' + day}/${month > 9 ? month : '0' + month}`;
-  }
-
-  const isSameDay = (date1: Date, date2: Date) => {
-    return date1.getDate() === date2.getDate()
-      && date1.getMonth() === date2.getMonth()
-      && date1.getFullYear() === date2.getFullYear();
-  }
-
-  const spreadScoresOnTimeline = (scores: IScoreByDateDto[]) => {
-    return timeline?.map(currentDate => scores?.find(score => isSameDay(new Date(score.date), currentDate))?.score);
-  }
+    });
+  }, [
+    canvasRef,
+    totalAirKillsByDate,
+    totalGroundKillsByDate,
+    totalDeathsByDate,
+    spreadScoresOnTimeline,
+    timeline?.map,
+  ]);
 
   return (
     <div style={{ height: '300px' }}>
       <canvas ref={canvasRef} />
     </div>
-  )
-}
+  );
+};

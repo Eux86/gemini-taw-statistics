@@ -1,8 +1,7 @@
 import React from 'react';
-import { IPlayerScoresDto } from 'gemini-statistics-api/build/dtos/player-scores.dto';
 import { SortieEvent } from 'gemini-statistics-api/build/enums/sortie-event';
-import { FiltersContext } from '../../data/filters-context';
 import { IScoreByDateDto } from 'gemini-statistics-api/build/dtos/scores-by-date.dto';
+import { FiltersContext } from '../../data/filters-context';
 
 export const useScores = (eventType?: SortieEvent) => {
   const [data, setData] = React.useState<IScoreByDateDto[] | undefined>(undefined);
@@ -15,11 +14,11 @@ export const useScores = (eventType?: SortieEvent) => {
   // eventType?: SortieEvent;
   const formatDate = (date: Date) => {
     try {
-      console.log(date);
-      return date.toISOString().split('T')[0]
+      return date.toISOString().split('T')[0];
     } catch (error) {
-      debugger;
+      // eslint-disable-next-line no-console
       console.error(error);
+      return undefined;
     }
   };
 
@@ -40,10 +39,10 @@ export const useScores = (eventType?: SortieEvent) => {
 
   React.useEffect(() => {
     fetch(`/api/scores?${filterString}`).then(async (response: Response) => {
-      let scores: IScoreByDateDto[] = await response.json();
+      const scores: IScoreByDateDto[] = await response.json();
       setData(scores);
     });
   }, [state, filterString]);
 
   return [data];
-}
+};

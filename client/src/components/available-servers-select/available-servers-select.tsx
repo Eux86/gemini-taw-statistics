@@ -12,12 +12,12 @@ export const AvailableServersSelect: React.FunctionComponent<IProps> = () => {
   const { dispatch } = React.useContext(FiltersContext);
 
   React.useEffect(() => {
-    const tempOptions = data?.map(server => ({ key: server, value: server })) || [];
-    const options = [{ key: 'all', value: 'All Servers' }].concat(tempOptions);
-    setOptions(options);
+    const tempOptions = data?.map((server) => ({ key: server, value: server })) || [];
+    const optionsInt = [{ key: 'all', value: 'All Servers' }].concat(tempOptions);
+    setOptions(optionsInt);
   }, [data]);
 
-  const onChange = React.useCallback((serverCode: string) => dispatch(changeServerCodeAction(serverCode === 'all' ? undefined : serverCode)), [dispatch])
+  const onChange = React.useCallback((serverCode: string) => dispatch(changeServerCodeAction(serverCode === 'all' ? undefined : serverCode)), [dispatch]);
 
   if (!options) return null;
 
@@ -29,4 +29,3 @@ export const AvailableServersSelect: React.FunctionComponent<IProps> = () => {
     />
   );
 };
-

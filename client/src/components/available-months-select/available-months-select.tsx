@@ -6,34 +6,34 @@ import { changeDateFromAction, changeDateToAction } from '../../data/filters-act
 import { getMonthNameByIndex, getMonthYearFromCustomTimestring } from '../../utilities';
 import { getStartEndMonthByDate } from '../../utils/dates';
 
-export const AvailableMonthsSelect: React.FunctionComponent<{}> = (props) => {
+export const AvailableMonthsSelect: React.FunctionComponent<{}> = () => {
   const [data] = useAvailableMonths();
   const [options, setOptions] = React.useState<IDropdownOption[] | undefined>(undefined);
   const [selectedMonth, setSelectedMonth] = React.useState<string>();
-  const { dispatch, state } = React.useContext(FiltersContext);
+  const { dispatch } = React.useContext(FiltersContext);
 
   React.useEffect(() => {
     if (!options) return;
     setSelectedMonth(options[0].key);
-  }, [options])
+  }, [options]);
 
   React.useEffect(() => {
     if (!data) return;
-    const tempOptions = data.map(month => {
+    const tempOptions = data.map((month) => {
       const monthYear = getMonthYearFromCustomTimestring(month);
       const monthName = getMonthNameByIndex(+monthYear.month);
       return {
         key: month,
         value: `${monthName} ${monthYear.year}`,
-      }
+      };
     });
-    const options = tempOptions.concat({ key: 'all', value: 'All Time' });
-    setOptions(options);
+    const optionsInt = tempOptions.concat({ key: 'all', value: 'All Time' });
+    setOptions(optionsInt);
   }, [data]);
 
   const onChange = React.useCallback((month: string) => {
     setSelectedMonth(month);
-  }, [dispatch]);
+  }, []);
 
   React.useEffect(() => {
     if (!selectedMonth) return;
@@ -54,7 +54,7 @@ export const AvailableMonthsSelect: React.FunctionComponent<{}> = (props) => {
     }
     dispatch(changeDateFromAction(firstDate));
     dispatch(changeDateToAction(lastDate));
-  }, [dispatch, selectedMonth])
+  }, [dispatch, selectedMonth]);
 
   if (!options) return null;
 
@@ -66,4 +66,3 @@ export const AvailableMonthsSelect: React.FunctionComponent<{}> = (props) => {
     />
   );
 };
-

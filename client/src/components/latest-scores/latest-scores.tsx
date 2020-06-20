@@ -12,25 +12,25 @@ export const LatestScores: React.FunctionComponent<{}> = () => {
   const [totalGroundKills, setTotalGroundKills] = React.useState(0);
   const [totalSorties, setTotalSorties] = React.useState(0);
 
-  const getScoresSum = (scores: IScoreByDateDto[], type: SortieEvent) => scores?.filter(score => score.eventType === type).reduce((prev, current) => prev + +current.score, 0);
+  const getScoresSum = (scoresInt: IScoreByDateDto[], type: SortieEvent) => scoresInt?.filter((score) => score.eventType === type).reduce((prev, current) => prev + +current.score, 0);
   React.useEffect(() => {
     if (!scores) return;
-    const totalAirKills = getScoresSum(scores, SortieEvent.Killed);
-    const totalDeaths = getScoresSum(scores, SortieEvent.WasKilled);
-    const totalGroundKills = getScoresSum(scores, SortieEvent.DestroyedGroundTarget);
-    const totalSorties = scores.filter(score => score.eventType === SortieEvent.TakeOff).length;
-    setTotalAirKills(totalAirKills || 0);
-    setTotalDeaths(totalDeaths || 0);
-    setTotalGroundKills(totalGroundKills || 0);
-    setTotalSorties(totalSorties || 0);
+    const totalAirKillsInt = getScoresSum(scores, SortieEvent.Killed);
+    const totalDeathsInt = getScoresSum(scores, SortieEvent.WasKilled);
+    const totalGroundKillsInt = getScoresSum(scores, SortieEvent.DestroyedGroundTarget);
+    const totalSortiesInt = scores.filter((score) => score.eventType === SortieEvent.TakeOff).length;
+    setTotalAirKills(totalAirKillsInt || 0);
+    setTotalDeaths(totalDeathsInt || 0);
+    setTotalGroundKills(totalGroundKillsInt || 0);
+    setTotalSorties(totalSortiesInt || 0);
   }, [scores]);
-  
+
   return (
     <div className="scores">
-      <SingleScore title="Total Air Kills" value={totalAirKills + ''} />
-      <SingleScore title="Total Ground Kills" value={totalGroundKills + ''} />
-      <SingleScore title="Total Deaths" value={totalDeaths + ''} />
-      <SingleScore title="Number of sorties" value={Math.ceil(totalSorties) + ''} />
+      <SingleScore title="Total Air Kills" value={`${totalAirKills}`} />
+      <SingleScore title="Total Ground Kills" value={`${totalGroundKills}`} />
+      <SingleScore title="Total Deaths" value={`${totalDeaths}`} />
+      <SingleScore title="Number of sorties" value={`${Math.ceil(totalSorties)}`} />
     </div>
-  )
-}
+  );
+};
