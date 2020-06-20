@@ -2,6 +2,7 @@ import { IFiltersStore } from './filters-context';
 import { FiltersActions } from './filters-actions';
 
 export const filtersReducer = (state: IFiltersStore, action: FiltersActions): IFiltersStore => {
+  // console.log('Reducers', action);
   switch (action.type) {
     case 'change-date-from':
       return {

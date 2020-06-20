@@ -13,7 +13,16 @@ export const useScores = (eventType?: SortieEvent) => {
   // playerName?: string;
   // serverCode?: string;
   // eventType?: SortieEvent;
-  const formatDate = (date:Date) => date.toISOString().split('T')[0]
+  const formatDate = (date: Date) => {
+    try {
+      console.log(date);
+      return date.toISOString().split('T')[0]
+    } catch (error) {
+      debugger;
+      console.error(error);
+    }
+  };
+
   const filters = [];
   if (state.from) {
     filters.push(`startDate=${formatDate(state.from)}`);

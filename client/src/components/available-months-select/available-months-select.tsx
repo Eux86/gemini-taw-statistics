@@ -37,9 +37,21 @@ export const AvailableMonthsSelect: React.FunctionComponent<{}> = (props) => {
 
   React.useEffect(() => {
     if (!selectedMonth) return;
-    const monthYear = getMonthYearFromCustomTimestring(selectedMonth);
-    const date = new Date(+monthYear.year, +(monthYear.month), 1);
-    const { firstDate, lastDate } = getStartEndMonthByDate(date);
+    let firstDate: Date = new Date();
+    let lastDate: Date = new Date();
+    if (selectedMonth === 'all') {
+      const today = new Date();
+      const threeMontsAgo = new Date();
+      threeMontsAgo.setMonth(today.getMonth() - 3);
+      firstDate = threeMontsAgo;
+      lastDate = today;
+    } else {
+      const monthYear = getMonthYearFromCustomTimestring(selectedMonth);
+      const date = new Date(+monthYear.year, +(monthYear.month), 1);
+      const { firstDate: start, lastDate: end } = getStartEndMonthByDate(date);
+      firstDate = start;
+      lastDate = end;
+    }
     dispatch(changeDateFromAction(firstDate));
     dispatch(changeDateToAction(lastDate));
   }, [dispatch, selectedMonth])
