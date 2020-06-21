@@ -56,11 +56,11 @@ export const HomePage: React.FunctionComponent<IProps> = () => {
         {/* this should be its own component */}
         <div className="latest-events-container">
           <div>
-            <h2>Shotdown</h2>
+            <h2>Shotdown enemy</h2>
             <KillsList kills={latestShotdown} color="#00ffb0" />
           </div>
           <div>
-            <h2>Enemy Shotdown</h2>
+            <h2>Was shotdown by enemy</h2>
             <KillsList kills={latestEnemyShotdown} color="#da5737" />
           </div>
         </div>

@@ -6,6 +6,7 @@ import { IPlayerScores } from "./models/player-scores";
 import { CboxPlayerStatsScraper } from "./scrapers/cbox-player-stats.scraper";
 import { TawPlayerStatsScraper } from "./scrapers/taw-player-stats.scraper";
 import { WolPlayerStatsScraper } from "./scrapers/wol-player-stats.scraper";
+import { ItawPlayerStatsScraper } from "./scrapers/itaw-player-stats.scraper";
 
 interface IScheduledScraper {
   scraper: IScraper,
@@ -32,18 +33,23 @@ export class Collector {
     this.db = db;
 
     this.scheduledScrapers = [
+      // {
+      //   scraper: new TawPlayerStatsScraper(this.db),
+      //   lastUpdate: new Date(0),
+      //   nextUpdate: undefined,
+      // },
+      // {
+      //   scraper: new CboxPlayerStatsScraper(this.db),
+      //   lastUpdate: new Date(0),
+      //   nextUpdate: undefined,
+      // },
+      // {
+      //   scraper: new WolPlayerStatsScraper(this.db),
+      //   lastUpdate: new Date(0),
+      //   nextUpdate: undefined,
+      // },
       {
-        scraper: new TawPlayerStatsScraper(this.db),
-        lastUpdate: new Date(0),
-        nextUpdate: undefined,
-      },
-      {
-        scraper: new CboxPlayerStatsScraper(this.db),
-        lastUpdate: new Date(0),
-        nextUpdate: undefined,
-      },
-      {
-        scraper: new WolPlayerStatsScraper(this.db),
+        scraper: new ItawPlayerStatsScraper(this.db),
         lastUpdate: new Date(0),
         nextUpdate: undefined,
       },
