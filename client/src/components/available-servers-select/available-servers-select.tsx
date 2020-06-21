@@ -9,7 +9,7 @@ interface IProps { }
 export const AvailableServersSelect: React.FunctionComponent<IProps> = () => {
   const [data] = useAvailableServers();
   const [options, setOptions] = React.useState<IDropdownOption[] | undefined>(undefined);
-  const { dispatch } = React.useContext(FiltersContext);
+  const { dispatch, state } = React.useContext(FiltersContext);
 
   React.useEffect(() => {
     const tempOptions = data?.map((server) => ({ key: server, value: server })) || [];
@@ -24,7 +24,7 @@ export const AvailableServersSelect: React.FunctionComponent<IProps> = () => {
   return (
     <Dropdown
       options={options}
-      selected="all"
+      selected={state.serverCode ?? 'all'}
       onChange={onChange}
     />
   );

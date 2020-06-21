@@ -9,13 +9,13 @@ import { getStartEndMonthByDate } from '../../utils/dates';
 export const AvailableMonthsSelect: React.FunctionComponent<{}> = () => {
   const [data] = useAvailableMonths();
   const [options, setOptions] = React.useState<IDropdownOption[] | undefined>(undefined);
-  const [selectedMonth, setSelectedMonth] = React.useState<string>();
+  const [selectedMonth, setSelectedMonth] = React.useState<string | undefined>(options?.[0].key);
   const { dispatch } = React.useContext(FiltersContext);
 
-  React.useEffect(() => {
-    if (!options) return;
-    setSelectedMonth(options[0].key);
-  }, [options]);
+  // React.useEffect(() => {
+  //   if (!options) return;
+  //   setSelectedMonth(options[0].key);
+  // }, [options]);
 
   React.useEffect(() => {
     if (!data) return;
@@ -61,7 +61,7 @@ export const AvailableMonthsSelect: React.FunctionComponent<{}> = () => {
   return (
     <Dropdown
       options={options}
-      selected="0"
+      selected={selectedMonth ?? '0'}
       onChange={onChange}
     />
   );

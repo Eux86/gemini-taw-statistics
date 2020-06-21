@@ -60,8 +60,8 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
 
   const spreadScoresOnTimeline = React.useCallback((scores: IScoreByDateDto[]) =>
     // eslint-disable-next-line implicit-arrow-linebreak
-    timeline?.map((currentDate) => scores?.find((score) => isSameDay(new Date(score.date), currentDate))?.score),
-  [timeline?.map]);
+    timeline && timeline.map((currentDate) => scores?.find((score) => isSameDay(new Date(score.date), currentDate))?.score),
+  [timeline]);
 
   React.useEffect(() => {
     if (!canvasRef?.current) {
