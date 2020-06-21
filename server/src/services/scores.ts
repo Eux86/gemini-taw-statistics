@@ -88,6 +88,12 @@ export class ScoresService {
     return uniqueServers;
   }
 
+  getAvailablePlayers = async (): Promise<string[]> => {
+    const results = this.scoresTable.selectDistinct('name').orderBy('name').execute();
+    const uniquePlayerNames = (await results).rows.map(row => row.name);
+    return uniquePlayerNames;
+  }
+
   private unique = (value: any, index: number, self: Array<any>) => {
     return self.indexOf(value) === index;
   }
