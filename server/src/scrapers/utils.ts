@@ -1,8 +1,9 @@
 import https from 'https';
+import http from 'http';
 
-export const getPageContent = async (url: string): Promise<string> => {
+export const getPageContent = async (url: string, isHttp: boolean = false): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const request = https.get(url, (resp: any) => {
+    const request = (isHttp? http : https).get(url, (resp: any) => {
       let data = '';
       resp.on('data', (chunk: any) => {
         data += chunk;

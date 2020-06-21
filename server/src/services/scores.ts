@@ -1,5 +1,5 @@
 import { IPlayerScores } from "../models/player-scores";
-import { ScoresTable, IScoresTable } from "../database/tables/scores";
+import { ScoresTable } from "../database/tables/scores";
 import { SortiesEventsTable, ISortieEventsTable } from "../database/tables/sorties-events";
 import { SortieEvent } from "../enums/sortie-event";
 import { IScoresFilter } from "../models/i-scores-filter";
@@ -58,23 +58,23 @@ export class ScoresService {
     return playerScores;
   }
 
-  getLatestScores = async (): Promise<IPlayerScores[]> => {
-    const subQuery = this.scoresTable.select('updatedate').orderBy('updatedate', true).limit(1).queryString;
-    const result = await this.scoresTable.select().where({ fieldName: 'updatedate', value: `(${subQuery})` }).execute();
-    const playerScores = result.rows.map((row: IScoresTable): IPlayerScores => ({
-      airKills: row.airkills,
-      deaths: row.deaths,
-      flightTimeMinutes: row.flighttimeminutes,
-      groundKills: row.groundkills,
-      name: row.name,
-      serverCode: row.servercode,
-      sorties: row.sorties,
-      streakAk: row.streakak,
-      streakGk: row.streakgk,
-      updateDate: row.updatedate
-    }));
-    return playerScores;
-  }
+  // getLatestScores = async (): Promise<IPlayerScores[]> => {
+  //   const subQuery = this.scoresTable.select('updatedate').orderBy('updatedate', true).limit(1).queryString;
+  //   const result = await this.scoresTable.select().where({ fieldName: 'updatedate', value: `(${subQuery})` }).execute();
+  //   const playerScores = result.rows.map((row: IScoresTable): IPlayerScores => ({
+  //     airKills: row.airkills,
+  //     deaths: row.deaths,
+  //     flightTimeMinutes: row.flighttimeminutes,
+  //     groundKills: row.groundkills,
+  //     name: row.name,
+  //     serverCode: row.servercode,
+  //     sorties: row.sorties,
+  //     streakAk: row.streakak,
+  //     streakGk: row.streakgk,
+  //     updateDate: row.updatedate
+  //   }));
+  //   return playerScores;
+  // }
 
   getAvailableMonths = async (): Promise<string[]> => {
     const results = this.sortiesTable.selectDistinct('sortiedate').orderBy('sortiedate', true).execute();
@@ -83,14 +83,14 @@ export class ScoresService {
   }
 
   getAvailableServers = async (): Promise<string[]> => {
-    const results = this.scoresTable.selectDistinct('servercode').orderBy('servercode', true).execute();
+    const results = this.sortiesTable.selectDistinct('servercode').orderBy('servercode', true).execute();
     const uniqueServers = (await results).rows.map(row => row.servercode).filter(this.unique);
     return uniqueServers;
   }
 
   getAvailablePlayers = async (): Promise<string[]> => {
-    const results = this.scoresTable.selectDistinct('name').orderBy('name').execute();
-    const uniquePlayerNames = (await results).rows.map(row => row.name);
+    const results = this.sortiesTable.selectDistinct('playername').orderBy('playername').execute();
+    const uniquePlayerNames = (await results).rows.map(row => row.playername);
     return uniquePlayerNames;
   }
 

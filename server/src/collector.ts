@@ -1,11 +1,11 @@
 import { Db } from "./database/db";
 import { MigrationsHandler } from "./database/migrations-handler";
-import { ScoresTable, IScoresTable } from "./database/tables/scores";
-import { UpdatesLogsTable, IUpdatesLogsTable } from "./database/tables/updates-log";
+import { ScoresTable } from "./database/tables/scores";
+import { UpdatesLogsTable } from "./database/tables/updates-log";
 import { IPlayerScores } from "./models/player-scores";
-import { QueryResult } from "pg";
 import { CboxPlayerStatsScraper } from "./scrapers/cbox-player-stats.scraper";
 import { TawPlayerStatsScraper } from "./scrapers/taw-player-stats.scraper";
+import { WolPlayerStatsScraper } from "./scrapers/wol-player-stats.scraper";
 
 interface IScheduledScraper {
   scraper: IScraper,
@@ -39,6 +39,11 @@ export class Collector {
       },
       {
         scraper: new CboxPlayerStatsScraper(this.db),
+        lastUpdate: new Date(0),
+        nextUpdate: undefined,
+      },
+      {
+        scraper: new WolPlayerStatsScraper(this.db),
         lastUpdate: new Date(0),
         nextUpdate: undefined,
       },

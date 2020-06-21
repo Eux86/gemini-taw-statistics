@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IServices } from '../../models/i-services';
 import { Route } from '../../utils';
-import { getAvailableMonths, getAvailableServers, getCsv, getLatestScores, getScoresFiltered, getAvailablePlayers } from './scores.handlers';
+import { getAvailableMonths, getAvailableServers, getCsv, getScoresFiltered, getAvailablePlayers } from './scores.handlers';
 
 export default [
   {
@@ -17,13 +17,6 @@ export default [
     },
     method: 'get',
     path: '/api/scores/csv',
-  },
-  {
-    handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {
-      await getLatestScores(services)(req, res, next);
-    },
-    method: 'get',
-    path: '/api/scores/latest',
   },
   {
     handler: (services: IServices) => async (req: Request, res: Response, next: NextFunction) => {

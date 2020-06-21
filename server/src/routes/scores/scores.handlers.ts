@@ -3,15 +3,6 @@ import { IServices } from '../../models/i-services';
 import { transformIPlayerScoresToDto, transformIScoresByDateToDto } from '../../transformers';
 import { IPlayerScores } from '../../models/player-scores';
 
-export const getLatestScores = (services: IServices): RequestHandler => async (_: Request, response: Response) => {
-  const {
-    scores
-  } = services;
-  const playersScores = await scores.getLatestScores();
-  const playersScoresDto = playersScores.map(transformIPlayerScoresToDto);
-  response.send(JSON.stringify(playersScoresDto, null, 2));
-};
-
 export const getScoresFiltered = (services: IServices): RequestHandler => async (request: Request, response: Response) => {
   const {
     scores

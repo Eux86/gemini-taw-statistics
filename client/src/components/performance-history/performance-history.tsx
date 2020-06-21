@@ -116,7 +116,7 @@ export const PerformanceByMonth: FunctionComponent<IProps> = () => {
     totalGroundKillsByDate,
     totalDeathsByDate,
     spreadScoresOnTimeline,
-    timeline?.map,
+    timeline,
   ]);
 
   return (
