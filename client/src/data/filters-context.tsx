@@ -7,6 +7,7 @@ export interface IFiltersStore {
   from?: Date,
   to?: Date,
   serverCode?: string;
+  playerName?: string;
 }
 
 const date = new Date();

@@ -35,6 +35,9 @@ export const useScores = (eventType?: SortieEvent) => {
   if (eventType) {
     filters.push(`eventType=${eventType}`);
   }
+  if (state.playerName) {
+    filters.push(`playerName=${state.playerName}`);
+  }
   const filterString = filters.join('&');
 
   React.useEffect(() => {

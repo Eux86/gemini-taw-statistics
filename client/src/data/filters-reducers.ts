@@ -18,6 +18,11 @@ export const filtersReducer = (state: IFiltersStore, action: FiltersActions): IF
         ...state,
         serverCode: action.payload.serverCode,
       };
+    case 'change-player-name-action':
+      return {
+        ...state,
+        playerName: action.payload.playerName,
+      };
     default:
       return state;
   }

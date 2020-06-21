@@ -7,6 +7,7 @@ import { LatestScores } from '../../components/latest-scores/latest-scores';
 import { PerformanceByMonth } from '../../components/performance-history/performance-history';
 import { useLatestEvents } from '../../hooks/api/use-latest-events';
 import './style.css';
+import { AvailablePlayersSelect } from '../../components/available-players-select/available-players-select';
 
 export interface IProps { }
 
@@ -30,6 +31,9 @@ export const HomePage: React.FunctionComponent<IProps> = () => {
         </div>
         <div>
           <AvailableServersSelect />
+        </div>
+        <div>
+          <AvailablePlayersSelect />
         </div>
         <div className="site-section-heading">
           <h2>Monthly Activity</h2>

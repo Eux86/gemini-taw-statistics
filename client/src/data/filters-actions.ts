@@ -23,6 +23,13 @@ interface IChangeServerCodeAction extends IAction {
   }
 }
 
+interface IChangePlayerNameAction extends IAction {
+  type: 'change-player-name-action',
+  payload: {
+    playerName?: string;
+  }
+}
+
 export const changeDateFromAction = (dateFrom?: Date): IChangeDateFromAction => ({
   type: 'change-date-from',
   payload: {
@@ -44,8 +51,16 @@ export const changeServerCodeAction = (serverCode?: string): IChangeServerCodeAc
   },
 });
 
+export const changePlayerNameAction = (playerName?: string): IChangePlayerNameAction => ({
+  type: 'change-player-name-action',
+  payload: {
+    playerName,
+  },
+});
+
 export type FiltersActions = IAction & (
   IChangeDateFromAction |
   IChangeDateToAction |
-  IChangeServerCodeAction
+  IChangeServerCodeAction |
+  IChangePlayerNameAction
 )
