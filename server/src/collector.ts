@@ -8,6 +8,7 @@ import { TawPlayerStatsScraper } from "./scrapers/taw-player-stats.scraper";
 import { WolPlayerStatsScraper } from "./scrapers/wol-player-stats.scraper";
 import { ItawPlayerStatsScraper } from "./scrapers/itaw-player-stats.scraper";
 import { KotaPlayerStatsScraper } from "./scrapers/kota-player-stats.scraper";
+import { FinnPlayerStatsScraper } from "./scrapers/finn-player-stats.scraper";
 
 interface IScheduledScraper {
   scraper: IScraper,
@@ -56,6 +57,11 @@ export class Collector {
       },
       {
         scraper: new KotaPlayerStatsScraper(this.db),
+        lastUpdate: new Date(0),
+        nextUpdate: undefined,
+      },
+      {
+        scraper: new FinnPlayerStatsScraper(this.db),
         lastUpdate: new Date(0),
         nextUpdate: undefined,
       },
