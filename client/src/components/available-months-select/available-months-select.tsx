@@ -27,7 +27,7 @@ export const AvailableMonthsSelect: React.FunctionComponent<{}> = () => {
         value: `${monthName} ${monthYear.year}`,
       };
     });
-    const optionsInt = tempOptions.concat({ key: 'all', value: 'All Time' });
+    const optionsInt = tempOptions.concat({ key: 'all', value: 'Last 2 months' });
     setOptions(optionsInt);
   }, [data]);
 
@@ -42,7 +42,7 @@ export const AvailableMonthsSelect: React.FunctionComponent<{}> = () => {
     if (selectedMonth === 'all') {
       const today = new Date();
       const threeMontsAgo = new Date();
-      threeMontsAgo.setMonth(today.getMonth() - 3);
+      threeMontsAgo.setMonth(today.getMonth() - 2);
       firstDate = threeMontsAgo;
       lastDate = today;
     } else {
